@@ -1,0 +1,19 @@
+services:
+  redis:
+    image: redis:7
+    ports:
+      - 6379:6379
+    volumes:
+      - redisdata:/data
+  postgres:
+    image: postgres:15
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=relay
+    ports:
+      - 5432:5432
+    volumes:
+      - postgresdata:/var/lib/postgresql/data
+volumes:
+  postgresdata:
+  redisdata:

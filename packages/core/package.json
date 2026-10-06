@@ -9,6 +9,9 @@
   "scripts": {
     "check-types": "tsc --noEmit"
   },
+  "dependencies": {
+    "@repo/types": "*"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/node": "26.4.1",

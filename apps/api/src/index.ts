@@ -1,14 +1,21 @@
 import express from "express";
-import { eventsRouter } from "./routes/events.ts";
-import { tripsRouter } from "./routes/trips.ts";
+import { config } from "@repo/config";
+import { connectRedis } from "@repo/redis";
+import { apiRouter } from "./routes/index.ts";
+import { allowBrowserCalls } from "./middleware/allow-browser-calls.ts";
 import { errorHandler } from "./middleware/error-handler.ts";
 
 const app = express();
+
+app.use(allowBrowserCalls);
 app.use(express.json());
 
-app.use(tripsRouter);
-app.use(eventsRouter);
+app.use(apiRouter);
+
+await connectRedis();
 
 app.use(errorHandler);
 
-app.listen(3001, () => console.log("api is listening on port 3001"));
+app.listen(config.PORT, () =>
+  console.log(`api is listening on port ${config.PORT}`),
+);

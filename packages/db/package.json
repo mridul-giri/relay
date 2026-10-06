@@ -1,0 +1,23 @@
+{
+  "name": "@repo/db",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.7.0",
+    "@prisma/client": "^7.7.0",
+    "@repo/config": "*"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "26.4.1",
+    "prisma": "^7.7.0",
+    "typescript": "7.0.2"
+  }
+}

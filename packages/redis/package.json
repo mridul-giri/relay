@@ -1,0 +1,22 @@
+{
+  "name": "@repo/redis",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@repo/config": "*",
+    "@repo/types": "*",
+    "redis": "^5.12.1"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "26.4.1",
+    "typescript": "7.0.2"
+  }
+}

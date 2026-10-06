@@ -1,29 +1,10 @@
+import {
+  IncomingEventType,
+  TripEventType,
+  type IncomingEvent,
+  type TripEvent,
+} from "@repo/types";
 import { InvalidInputError } from "./errors.ts";
-
-export const TripEventType = {
-  TRIP_CREATED: "TRIP_CREATED",
-  DRIVER_EN_ROUTE: "DRIVER_EN_ROUTE",
-  ETA_CHANGED: "ETA_CHANGED",
-} as const;
-
-export type TripEventType = (typeof TripEventType)[keyof typeof TripEventType];
-
-export interface TripEvent {
-  eventId: string;
-  tripId: string;
-  type: TripEventType;
-  payload: Record<string, unknown>;
-  occurredAt: string;
-}
-
-// Can not trust whatever the transport system sends
-export interface IncomingEvent {
-  eventId?: unknown;
-  tripId?: unknown;
-  type?: unknown;
-  payload?: unknown;
-  occurredAt?: unknown;
-}
 
 function readText(value: unknown, field: string): string {
   if (typeof value !== "string" || value.trim() === "") {
@@ -38,19 +19,16 @@ export function cleanEvent(raw: IncomingEvent): TripEvent {
   const occurredAt = readText(raw.occurredAt, "occurredAt");
 
   const type = readText(raw.type, "type");
-  const knownTypes = Object.values(TripEventType);
-  if (!knownTypes.includes(type as TripEventType)) {
-    throw new InvalidInputError(
-      `event.type must be one of ${knownTypes.join(", ")}`,
-    );
+  const knownTypes = Object.values(IncomingEventType);
+  const isKnownType = knownTypes.includes(type as IncomingEventType);
+  if (!isKnownType) {
+    const knownList = knownTypes.join(", ");
+    throw new InvalidInputError(`event.type must be one of ${knownList}`);
   }
 
   const payload = raw.payload === undefined ? {} : raw.payload;
-  if (
-    typeof payload !== "object" ||
-    payload === null ||
-    Array.isArray(payload)
-  ) {
+  const isPayloadAList = Array.isArray(payload);
+  if (typeof payload !== "object" || payload === null || isPayloadAList) {
     throw new InvalidInputError("event.payload must be an object");
   }
 

@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { getTrip, listTrips } from "../controllers/trips.ts";
+import { listTrips, getTrip, listTripCalls } from "../controllers/trips.ts";
 
 export const tripsRouter = Router();
 
-tripsRouter.get("/trips", listTrips);
-tripsRouter.get("/trips/:id", getTrip);
+tripsRouter.get("/", listTrips);
+tripsRouter.get("/:id", getTrip);
+tripsRouter.get("/:id/call-attempts", listTripCalls);

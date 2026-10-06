@@ -1,19 +1,14 @@
-import type { Person, Trip } from "./trip.ts";
-import { isTransitionAllowed, TripStatus } from "./trip.ts";
-import type { TripEvent } from "./events.ts";
-import { TripEventType } from "./events.ts";
+import {
+  TripEventType,
+  TripStatus,
+  type ApplyResult,
+  type AuditEntry,
+  type Person,
+  type Trip,
+  type TripEvent,
+} from "@repo/types";
+import { isTransitionAllowed } from "./trip.ts";
 import { InvalidInputError } from "./errors.ts";
-
-export interface AuditEntry {
-  type: string;
-  message: string;
-  data?: Record<string, unknown>;
-}
-
-export interface ApplyResult {
-  trip: Trip;
-  audit: AuditEntry[];
-}
 
 function readPerson(value: unknown, field: string): Person {
   if (typeof value !== "object" || value === null) {
@@ -37,6 +32,21 @@ function readPerson(value: unknown, field: string): Person {
   return { name, phone };
 }
 
+function readText(value: unknown, field: string): string {
+  if (typeof value !== "string" || value.trim() === "") {
+    throw new InvalidInputError(
+      `event.${field} must be a non-empty string`,
+    );
+  }
+  return value;
+}
+
+function readOptionalText(value: unknown, field: string): string | undefined {
+  if (value === undefined) return undefined;
+  const text = readText(value, field);
+  return text;
+}
+
 function readMinutes(value: unknown, field: string): number {
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0) {
     throw new InvalidInputError(
@@ -47,7 +57,8 @@ function readMinutes(value: unknown, field: string): number {
 }
 
 function moveTo(trip: Trip, to: TripStatus, audit: AuditEntry[]): Trip {
-  if (!isTransitionAllowed(trip.status, to)) {
+  const canMove = isTransitionAllowed(trip.status, to);
+  if (!canMove) {
     throw new InvalidInputError(
       `illegal status change ${trip.status} -> ${to}`,
     );
@@ -75,6 +86,7 @@ export function createTrip(event: TripEvent): Trip {
     etaMinutes,
     slot: null,
     note: null,
+    delayReason: null,
     version: 1,
   };
 }
@@ -95,7 +107,11 @@ export function applyEvent(trip: Trip, event: TripEvent): ApplyResult {
 
     case TripEventType.ETA_CHANGED: {
       const etaMinutes = readMinutes(event.payload.etaMinutes, "etaMinutes");
+      const reason = readOptionalText(event.payload.reason, "reason");
       let next: Trip = { ...trip, etaMinutes };
+      if (reason !== undefined) {
+        next = { ...next, delayReason: reason };
+      }
       audit.push({
         type: "eta",
         message: `eta ${trip.etaMinutes} -> ${etaMinutes} minutes`,
@@ -111,7 +127,30 @@ export function applyEvent(trip: Trip, event: TripEvent): ApplyResult {
       return { trip: next, audit };
     }
 
-    default:
-      throw new Error(`unhandled event type ${String(event.type)}`);
+    case TripEventType.SLOT_SELECTED: {
+      const slotLabel = readText(event.payload.slotLabel, "slotLabel");
+      const next = moveTo(trip, TripStatus.RESCHEDULED, audit);
+      audit.push({
+        type: "slot",
+        message: `slot chosen: ${slotLabel}`,
+        data: { slotLabel },
+      });
+      return {
+        trip: { ...next, slot: slotLabel, note: `rescheduled to ${slotLabel}` },
+        audit,
+      };
+    }
+
+    case TripEventType.TRIP_ESCALATED: {
+      const reason = readText(event.payload.reason, "reason");
+      const next = moveTo(trip, TripStatus.ESCALATED, audit);
+      audit.push({ type: "escalation", message: reason, data: { reason } });
+      return { trip: { ...next, note: reason }, audit };
+    }
+
+    default: {
+      const eventType = String(event.type);
+      throw new Error(`unhandled event type ${eventType}`);
+    }
   }
 }
