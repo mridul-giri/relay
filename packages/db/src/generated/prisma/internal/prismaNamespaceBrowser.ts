@@ -51,13 +51,10 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Trip: 'Trip',
-  TripEvent: 'TripEvent',
-  AuditLog: 'AuditLog',
-  CallAttempt: 'CallAttempt',
+  Merchant: 'Merchant',
+  Call: 'Call',
   TranscriptTurn: 'TranscriptTurn',
-  ToolCall: 'ToolCall',
-  Escalation: 'Escalation'
+  ToolCall: 'ToolCall'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -76,72 +73,46 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
-export const TripScalarFieldEnum = {
+export const MerchantScalarFieldEnum = {
   id: 'id',
+  name: 'name',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  createdAt: 'createdAt'
+} as const
+
+export type MerchantScalarFieldEnum = (typeof MerchantScalarFieldEnum)[keyof typeof MerchantScalarFieldEnum]
+
+
+export const CallScalarFieldEnum = {
+  id: 'id',
+  requestId: 'requestId',
+  merchantId: 'merchantId',
+  orderRef: 'orderRef',
   status: 'status',
-  driverName: 'driverName',
-  driverPhone: 'driverPhone',
+  outcome: 'outcome',
   customerName: 'customerName',
   customerPhone: 'customerPhone',
-  plannedEtaMinutes: 'plannedEtaMinutes',
+  customerLanguage: 'customerLanguage',
+  driverName: 'driverName',
+  driverPhone: 'driverPhone',
+  productName: 'productName',
+  productSku: 'productSku',
   etaMinutes: 'etaMinutes',
-  slot: 'slot',
-  note: 'note',
-  delayReason: 'delayReason',
-  version: 'version',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type TripScalarFieldEnum = (typeof TripScalarFieldEnum)[keyof typeof TripScalarFieldEnum]
-
-
-export const TripEventScalarFieldEnum = {
-  id: 'id',
-  eventId: 'eventId',
-  tripId: 'tripId',
-  type: 'type',
-  payload: 'payload',
-  occurredAt: 'occurredAt',
-  versionBefore: 'versionBefore',
-  versionAfter: 'versionAfter',
-  createdAt: 'createdAt'
-} as const
-
-export type TripEventScalarFieldEnum = (typeof TripEventScalarFieldEnum)[keyof typeof TripEventScalarFieldEnum]
-
-
-export const AuditLogScalarFieldEnum = {
-  id: 'id',
-  tripId: 'tripId',
-  type: 'type',
   message: 'message',
-  data: 'data',
-  createdAt: 'createdAt'
-} as const
-
-export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
-
-
-export const CallAttemptScalarFieldEnum = {
-  id: 'id',
-  tripId: 'tripId',
-  persona: 'persona',
-  reason: 'reason',
-  ruleId: 'ruleId',
-  sourceEventId: 'sourceEventId',
-  status: 'status',
-  slots: 'slots',
+  policy: 'policy',
+  offeredSlots: 'offeredSlots',
   createdAt: 'createdAt',
+  startedAt: 'startedAt',
   endedAt: 'endedAt'
 } as const
 
-export type CallAttemptScalarFieldEnum = (typeof CallAttemptScalarFieldEnum)[keyof typeof CallAttemptScalarFieldEnum]
+export type CallScalarFieldEnum = (typeof CallScalarFieldEnum)[keyof typeof CallScalarFieldEnum]
 
 
 export const TranscriptTurnScalarFieldEnum = {
   id: 'id',
-  callAttemptId: 'callAttemptId',
+  callId: 'callId',
   speaker: 'speaker',
   text: 'text',
   spokenAt: 'spokenAt',
@@ -153,7 +124,7 @@ export type TranscriptTurnScalarFieldEnum = (typeof TranscriptTurnScalarFieldEnu
 
 export const ToolCallScalarFieldEnum = {
   id: 'id',
-  callAttemptId: 'callAttemptId',
+  callId: 'callId',
   tool: 'tool',
   args: 'args',
   accepted: 'accepted',
@@ -162,17 +133,6 @@ export const ToolCallScalarFieldEnum = {
 } as const
 
 export type ToolCallScalarFieldEnum = (typeof ToolCallScalarFieldEnum)[keyof typeof ToolCallScalarFieldEnum]
-
-
-export const EscalationScalarFieldEnum = {
-  id: 'id',
-  tripId: 'tripId',
-  ruleId: 'ruleId',
-  reason: 'reason',
-  createdAt: 'createdAt'
-} as const
-
-export type EscalationScalarFieldEnum = (typeof EscalationScalarFieldEnum)[keyof typeof EscalationScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -190,28 +150,12 @@ export const JsonNullValueInput = {
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
-export const NullableJsonNullValueInput = {
-  DbNull: DbNull,
-  JsonNull: JsonNull
-} as const
-
-export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
-
-
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
-
-
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
 export const JsonNullValueFilter = {
@@ -221,4 +165,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

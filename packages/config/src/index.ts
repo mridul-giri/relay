@@ -8,11 +8,15 @@ function readRequiredEnv(name: string): string {
 
 const databaseUrl = readRequiredEnv("DATABASE_URL");
 const redisUrl = readRequiredEnv("REDIS_URL");
+
+const jwtSecret = readRequiredEnv("JWT_SECRET");
+
 const port = Number(process.env.PORT ?? "3001");
 
 export const config = {
   DATABASE_URL: databaseUrl,
   REDIS_URL: redisUrl,
+  JWT_SECRET: jwtSecret,
   PORT: port,
   COMMANDS_STREAM: process.env.COMMANDS_STREAM ?? "relay:commands",
 

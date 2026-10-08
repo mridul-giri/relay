@@ -1,133 +1,142 @@
 import type { Slot } from "./slot.ts";
-import type { Trip } from "./trip.ts";
 
-export const CallPersona = {
-  DRIVER: "DRIVER",
-  CUSTOMER: "CUSTOMER",
+export const CallStatus = {
+  QUEUED: "QUEUED",
+  CALLING: "CALLING",
+  ENDED: "ENDED",
 } as const;
 
-export type CallPersona = (typeof CallPersona)[keyof typeof CallPersona];
+export type CallStatus = (typeof CallStatus)[keyof typeof CallStatus];
 
-export const CallReason = {
-  DELAY: "DELAY",
-} as const;
-
-export type CallReason = (typeof CallReason)[keyof typeof CallReason];
-
-export interface CallIntent {
-  tripId: string;
-  persona: CallPersona;
-  reason: CallReason;
-  ruleId: string;
-  triggerVersion: number;
-}
-
-export interface RuleContext {
-  now: number;
-  delayThresholdMinutes: number;
-}
-
-export const CallAttemptStatus = {
-  RINGING: "RINGING",
-  IN_PROGRESS: "IN_PROGRESS",
-  COMPLETED: "COMPLETED",
+export const CallOutcome = {
+  RESCHEDULED: "RESCHEDULED",
+  CANCELLATION_REQUESTED: "CANCELLATION_REQUESTED",
+  HUMAN_REQUESTED: "HUMAN_REQUESTED",
+  NO_DECISION: "NO_DECISION",
+  NO_ANSWER: "NO_ANSWER",
   FAILED: "FAILED",
 } as const;
 
-export type CallAttemptStatus =
-  (typeof CallAttemptStatus)[keyof typeof CallAttemptStatus];
+export type CallOutcome = (typeof CallOutcome)[keyof typeof CallOutcome];
 
-export interface CallAttempt {
+export interface Person {
+  name: string;
+  phone: string;
+}
+
+export interface Product {
+  name: string;
+  sku?: string;
+}
+
+export interface RescheduleWindow {
+  days: string[];
+  from: string;
+  to: string;
+}
+
+export interface CallPolicy {
+  mayCancel: boolean;
+  mayReschedule: boolean;
+  rescheduleWindow?: RescheduleWindow;
+}
+
+export interface IncomingCallRequest {
+  requestId?: unknown;
+  orderRef?: unknown;
+  customer?: unknown;
+  driver?: unknown;
+  product?: unknown;
+  etaMinutes?: unknown;
+  message?: unknown;
+  policy?: unknown;
+}
+
+export interface CallCustomer extends Person {
+  language: string;
+}
+
+export interface CleanCallRequest {
+  requestId: string;
+  orderRef: string;
+  customer: CallCustomer;
+  driver: Person | null;
+  product: Product | null;
+  etaMinutes: number;
+  message: string | null;
+  policy: CallPolicy;
+}
+
+export interface CallContext {
+  customerName: string;
+  customerPhone: string;
+  customerLanguage: string;
+  driverName: string | null;
+  driverPhone: string | null;
+  productName: string | null;
+  productSku: string | null;
+  etaMinutes: number;
+  message: string | null;
+  policy: CallPolicy;
+}
+
+export interface Call {
   id: string;
-  tripId: string;
-  persona: CallPersona;
-  reason: CallReason;
-  ruleId: string;
-  sourceEventId: string;
-  status: CallAttemptStatus;
-  slots: Slot[];
+  requestId: string;
+  merchantId: string;
+  orderRef: string;
+  status: CallStatus;
+  outcome: CallOutcome | null;
+  context: CallContext;
+  offeredSlots: Slot[];
   createdAt: string;
+  startedAt: string | null;
   endedAt: string | null;
 }
 
-export interface CallAttemptRow {
+export interface CallRow {
   id: string;
-  tripId: string;
-  persona: CallPersona;
-  reason: CallReason;
-  ruleId: string;
-  sourceEventId: string;
-  status: CallAttemptStatus;
-  slots: unknown;
+  requestId: string;
+  merchantId: string;
+  orderRef: string;
+  status: CallStatus;
+  outcome: CallOutcome | null;
+  customerName: string;
+  customerPhone: string;
+  customerLanguage: string;
+  driverName: string | null;
+  driverPhone: string | null;
+  productName: string | null;
+  productSku: string | null;
+  etaMinutes: number;
+  message: string | null;
+  policy: unknown;
+  offeredSlots: unknown;
   createdAt: Date;
+  startedAt: Date | null;
   endedAt: Date | null;
-}
-
-export interface Escalation {
-  id: string;
-  tripId: string;
-  ruleId: string;
-  reason: string;
-  createdAt: string;
-}
-
-export interface ToolCallRecord {
-  id: string;
-  callAttemptId: string;
-  tool: string;
-  args: Record<string, unknown>;
-  accepted: boolean;
-  reason: string;
-  createdAt: string;
-}
-
-export interface TranscriptTurn {
-  callAttemptId: string;
-  speaker: "AGENT" | "CALLER";
-  text: string;
-  spokenAt: string;
-}
-
-export interface CallAttemptView {
-  id: string;
-  tripId: string;
-  persona: string;
-  reason: string;
-  ruleId: string;
-  status: string;
-  slots: unknown;
-  createdAt: string;
-  endedAt: string | null;
-}
-
-export interface ToolCallView {
-  id: string;
-  tool: string;
-  args: Record<string, unknown>;
-  accepted: boolean;
-  reason: string;
-  createdAt: string;
-}
-
-export interface CallAttemptHistory extends CallAttemptView {
-  transcripts: TranscriptTurn[];
-  toolCalls: ToolCallView[];
-}
-
-export interface CallBrief {
-  attempt: {
-    id: string;
-    tripId: string;
-    persona: CallPersona;
-    reason: CallReason;
-    status: string;
-    slots: Slot[];
-  };
-  trip: Trip;
 }
 
 export interface CallSession {
   url: string;
   token: string;
   roomName: string;
+}
+
+export interface TranscriptTurnView {
+  speaker: "AGENT" | "CALLER";
+  text: string;
+  spokenAt: string;
+}
+
+export interface CallView {
+  id: string;
+  orderRef: string;
+  customerName: string;
+  status: CallStatus;
+  outcome: CallOutcome | null;
+  offeredSlots: Slot[];
+  transcripts: TranscriptTurnView[];
+  createdAt: string;
+  endedAt: string | null;
 }

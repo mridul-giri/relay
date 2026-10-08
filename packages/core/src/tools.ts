@@ -1,37 +1,58 @@
+import { z } from "zod";
 import {
+  CallOutcome,
   ToolName,
-  TripStatus,
+  type CallToolContext,
   type IncomingToolCall,
   type ToolCall,
-  type ToolContext,
   type ToolDecision,
 } from "@repo/types";
 import { InvalidInputError } from "./errors.ts";
-import { isTransitionAllowed } from "./trip.ts";
+
+const toolCallSchema = z.object({
+  tool: z.enum([ToolName.SELECT_SLOT, ToolName.CANCEL, ToolName.REQUEST_HUMAN]),
+  args: z.record(z.string(), z.unknown()).default({}),
+});
 
 export function cleanToolCall(raw: IncomingToolCall): ToolCall {
-  if (typeof raw.tool !== "string") {
-    throw new InvalidInputError("tool call must have a tool name");
-  }
-  const knownTools = Object.values(ToolName);
-  const isKnownTool = knownTools.includes(raw.tool as ToolName);
-  if (!isKnownTool) {
-    const knownList = knownTools.join(", ");
-    throw new InvalidInputError(`tool must be one of ${knownList}`);
-  }
-
-  const args = raw.args === undefined ? {} : raw.args;
-  const isArgsAList = Array.isArray(args);
-  if (typeof args !== "object" || args === null || isArgsAList) {
-    throw new InvalidInputError("tool call args must be an object");
+  const result = toolCallSchema.safeParse(raw);
+  if (!result.success) {
+    const issue = result.error.issues[0];
+    if (issue === undefined) {
+      throw new InvalidInputError("tool call is invalid");
+    }
+    const path = issue.path.join(".");
+    const message =
+      path === "" ? issue.message : `tool call ${path} ${issue.message}`;
+    throw new InvalidInputError(message);
   }
 
-  return { tool: raw.tool as ToolName, args: args as Record<string, unknown> };
+  const call: ToolCall = {
+    tool: result.data.tool,
+    args: result.data.args,
+  };
+  return call;
 }
 
-export function checkToolCall(call: ToolCall, ctx: ToolContext): ToolDecision {
-  if (call.tool !== ToolName.SELECT_SLOT) {
-    return { accepted: false, reason: `tool ${call.tool} does nothing yet` };
+export function checkToolCall(
+  call: ToolCall,
+  ctx: CallToolContext,
+): ToolDecision {
+  if (call.tool === ToolName.SELECT_SLOT) {
+    return checkSlot(call, ctx);
+  }
+  if (call.tool === ToolName.CANCEL) {
+    return checkCancel(ctx);
+  }
+  return checkHuman();
+}
+
+function checkSlot(call: ToolCall, ctx: CallToolContext): ToolDecision {
+  if (!ctx.policy.mayReschedule) {
+    return {
+      accepted: false,
+      reason: "rescheduling is not allowed on this call",
+    };
   }
 
   const slotId = call.args.slotId;
@@ -39,21 +60,40 @@ export function checkToolCall(call: ToolCall, ctx: ToolContext): ToolDecision {
     return { accepted: false, reason: "slotId must be a string" };
   }
 
-  const slot = ctx.allowedSlots.find((candidate) => candidate.id === slotId);
+  const slot = ctx.offeredSlots.find((candidate) => candidate.id === slotId);
   if (!slot) {
     return { accepted: false, reason: `slot ${slotId} was not offered` };
   }
 
-  const canReschedule = isTransitionAllowed(
-    ctx.trip.status,
-    TripStatus.RESCHEDULED,
-  );
-  if (!canReschedule) {
+  const decision = {
+    accepted: true,
+    reason: `slot ${slot.label} accepted`,
+    slot,
+    outcome: CallOutcome.RESCHEDULED,
+  };
+  return decision;
+}
+
+function checkCancel(ctx: CallToolContext): ToolDecision {
+  if (!ctx.policy.mayCancel) {
     return {
       accepted: false,
-      reason: `cannot reschedule a ${ctx.trip.status} trip`,
+      reason: "cancelling is not allowed on this call",
     };
   }
+  const decision = {
+    accepted: true,
+    reason: "cancellation recorded",
+    outcome: CallOutcome.CANCELLATION_REQUESTED,
+  };
+  return decision;
+}
 
-  return { accepted: true, reason: `slot ${slot.label} accepted`, slot };
+function checkHuman(): ToolDecision {
+  const decision = {
+    accepted: true,
+    reason: "human handoff recorded",
+    outcome: CallOutcome.HUMAN_REQUESTED,
+  };
+  return decision;
 }

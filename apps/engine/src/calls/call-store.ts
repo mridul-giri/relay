@@ -1,49 +1,82 @@
 import { prisma, Prisma, type TransactionClient } from "@repo/db";
-import { CallAttemptStatus } from "@repo/types";
-import type {
-  CallAttempt,
-  CallAttemptRow,
-  Escalation,
-  Slot,
-  ToolCallRecord,
-} from "@repo/types";
+import { CallOutcome, CallStatus } from "@repo/types";
+import type { Call, CallContext, CallPolicy, CallRow, Slot } from "@repo/types";
 
-function toAttempt(row: CallAttemptRow): CallAttempt {
+export interface ToolCallRecord {
+  id: string;
+  callId: string;
+  tool: string;
+  args: Record<string, unknown>;
+  accepted: boolean;
+  reason: string;
+  createdAt: string;
+}
+
+function toCall(row: CallRow): Call {
   const createdAt = row.createdAt.toISOString();
+  const startedAt = row.startedAt ? row.startedAt.toISOString() : null;
   const endedAt = row.endedAt ? row.endedAt.toISOString() : null;
-  return {
+
+  const policy = row.policy as unknown as CallPolicy;
+  const offeredSlots = row.offeredSlots as unknown as Slot[];
+
+  const context: CallContext = {
+    customerName: row.customerName,
+    customerPhone: row.customerPhone,
+    customerLanguage: row.customerLanguage,
+    driverName: row.driverName,
+    driverPhone: row.driverPhone,
+    productName: row.productName,
+    productSku: row.productSku,
+    etaMinutes: row.etaMinutes,
+    message: row.message,
+    policy,
+  };
+
+  const call: Call = {
     id: row.id,
-    tripId: row.tripId,
-    persona: row.persona,
-    reason: row.reason,
-    ruleId: row.ruleId,
-    sourceEventId: row.sourceEventId,
+    requestId: row.requestId,
+    merchantId: row.merchantId,
+    orderRef: row.orderRef,
     status: row.status,
-    slots: row.slots as Slot[],
+    outcome: row.outcome,
+    context,
+    offeredSlots,
     createdAt,
+    startedAt,
     endedAt,
   };
+  return call;
+}
+
+function toCallColumns(call: Call) {
+  const columns = {
+    id: call.id,
+    requestId: call.requestId,
+    merchantId: call.merchantId,
+    orderRef: call.orderRef,
+    status: call.status,
+    outcome: call.outcome,
+    customerName: call.context.customerName,
+    customerPhone: call.context.customerPhone,
+    customerLanguage: call.context.customerLanguage,
+    driverName: call.context.driverName,
+    driverPhone: call.context.driverPhone,
+    productName: call.context.productName,
+    productSku: call.context.productSku,
+    etaMinutes: call.context.etaMinutes,
+    message: call.context.message,
+    policy: call.context.policy as unknown as Prisma.InputJsonValue,
+    offeredSlots: call.offeredSlots as unknown as Prisma.InputJsonValue,
+  };
+  return columns;
 }
 
 export class CallStore {
-  async insertAttemptOnce(attempt: CallAttempt): Promise<boolean> {
-    const createdAt = new Date(attempt.createdAt);
-    const endedAt = attempt.endedAt ? new Date(attempt.endedAt) : null;
+  async insertCallOnce(call: Call): Promise<boolean> {
+    const columns = toCallColumns(call);
     try {
-      await prisma.callAttempt.create({
-        data: {
-          id: attempt.id,
-          tripId: attempt.tripId,
-          persona: attempt.persona,
-          reason: attempt.reason,
-          ruleId: attempt.ruleId,
-          sourceEventId: attempt.sourceEventId,
-          status: attempt.status,
-          slots: attempt.slots as unknown as Prisma.InputJsonValue,
-          createdAt,
-          endedAt,
-        },
-      });
+      await prisma.call.create({ data: columns });
       return true;
     } catch (err) {
       const isDuplicate =
@@ -54,81 +87,61 @@ export class CallStore {
     }
   }
 
-  async countAttempts(tripId: string, ruleId: string): Promise<number> {
-    const count = await prisma.callAttempt.count({
-      where: { tripId, ruleId },
-    });
-    return count;
-  }
-
-  async getAttempt(
+  async getCall(
     id: string,
     db: TransactionClient = prisma,
-  ): Promise<CallAttempt | undefined> {
-    const row = await db.callAttempt.findUnique({ where: { id } });
-    const attempt = row ? toAttempt(row) : undefined;
-    return attempt;
+  ): Promise<Call | undefined> {
+    const row = await db.call.findUnique({ where: { id } });
+    const call = row ? toCall(row) : undefined;
+    return call;
   }
 
-  async setAttemptStatus(
+  async setCallCalling(
     id: string,
-    status: CallAttemptStatus,
-    endedAt: string | null = null,
     db: TransactionClient = prisma,
   ): Promise<void> {
-    const endedAtDate = endedAt ? new Date(endedAt) : null;
-    await db.callAttempt.update({
+    await db.call.updateMany({
+      where: { id, status: CallStatus.QUEUED },
+      data: { status: CallStatus.CALLING },
+    });
+  }
+
+  async markCallStarted(
+    id: string,
+    db: TransactionClient = prisma,
+  ): Promise<void> {
+    await db.call.updateMany({
+      where: { id, startedAt: null },
+      data: { startedAt: new Date() },
+    });
+  }
+
+  async endCall(
+    id: string,
+    outcome: CallOutcome,
+    endedAt: string,
+    db: TransactionClient = prisma,
+  ): Promise<void> {
+    await db.call.update({
       where: { id },
       data: {
-        status,
-        endedAt: endedAtDate,
+        status: CallStatus.ENDED,
+        outcome,
+        endedAt: new Date(endedAt),
       },
     });
   }
 
-  async markCallInProgress(id: string): Promise<void> {
-    await prisma.callAttempt.updateMany({
-      where: { id, status: CallAttemptStatus.RINGING },
-      data: { status: CallAttemptStatus.IN_PROGRESS },
-    });
-  }
-
-  async markCallFailed(id: string): Promise<void> {
-    const endedAt = new Date();
-    await prisma.callAttempt.updateMany({
+  async findStaleCalls(cutoff: Date): Promise<Call[]> {
+    const rows = await prisma.call.findMany({
       where: {
-        id,
-        status: {
-          in: [CallAttemptStatus.RINGING, CallAttemptStatus.IN_PROGRESS],
-        },
-      },
-      data: { status: CallAttemptStatus.FAILED, endedAt },
-    });
-  }
-
-  async failStaleRingingCalls(olderThan: Date): Promise<number> {
-    const endedAt = new Date();
-    const result = await prisma.callAttempt.updateMany({
-      where: {
-        status: CallAttemptStatus.RINGING,
-        createdAt: { lt: olderThan },
-      },
-      data: { status: CallAttemptStatus.FAILED, endedAt },
-    });
-    return result.count;
-  }
-
-  async insertEscalation(escalation: Escalation): Promise<void> {
-    const createdAt = new Date(escalation.createdAt);
-    await prisma.escalation.create({
-      data: {
-        id: escalation.id,
-        tripId: escalation.tripId,
-        ruleId: escalation.ruleId,
-        reason: escalation.reason,
-        createdAt,
+        status: CallStatus.CALLING,
+        startedAt: null,
+        createdAt: { lt: cutoff },
       },
     });
+    const calls = rows.map(toCall);
+    return calls;
   }
 
   async findToolCall(id: string, db: TransactionClient = prisma) {
@@ -140,16 +153,15 @@ export class CallStore {
     record: ToolCallRecord,
     db: TransactionClient = prisma,
   ): Promise<void> {
-    const createdAt = new Date(record.createdAt);
     await db.toolCall.create({
       data: {
         id: record.id,
-        callAttemptId: record.callAttemptId,
+        callId: record.callId,
         tool: record.tool,
         args: record.args as Prisma.InputJsonValue,
         accepted: record.accepted,
         reason: record.reason,
-        createdAt,
+        createdAt: new Date(record.createdAt),
       },
     });
   }

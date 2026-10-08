@@ -1,13 +1,6 @@
-import type { CallPersona, CallReason } from "./call.ts";
-import type { Slot } from "./slot.ts";
-import type { Trip } from "./trip.ts";
-
 export interface StartCall {
-  callAttemptId: string;
-  trip: Trip;
-  persona: CallPersona;
-  reason: CallReason;
-  slots: Slot[];
+  callId: string;
+  roomName: string;
 }
 
 export interface VoiceRuntime {

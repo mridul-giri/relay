@@ -6,19 +6,20 @@ import {
 } from "@repo/redis";
 import { CommandKind } from "@repo/types";
 import type { StreamNote, VoiceRuntime } from "@repo/types";
-import { TripStore } from "./trips/trip-store.ts";
-import { TripEngine } from "./trips/trip-engine.ts";
 import { CallStore } from "./calls/call-store.ts";
-import { LiveKitVoiceRuntime } from "./calls/voice/livekit-runtime.ts";
 import { CallManager } from "./calls/call-manager.ts";
-import { CallDispatcher } from "./calls/dispatcher.ts";
 import { CallFacts } from "./calls/call-facts.ts";
-import { ENGINE_GROUP, readCommands, recoverPending } from "./utils/read-commands.ts";
+import { LiveKitVoiceRuntime } from "./calls/voice/livekit-runtime.ts";
+import {
+  ENGINE_GROUP,
+  readCommands,
+  recoverPending,
+} from "./utils/read-commands.ts";
 import { failUnansweredCalls } from "./utils/fail-unanswered-calls.ts";
-import { handleTripEventNote } from "./utils/handle-trip-event-note.ts";
+import { handleCallRequestNote } from "./utils/handle-call-request-note.ts";
 import { handleFactNote } from "./utils/handle-fact-note.ts";
 import { handleCallStartedNote } from "./utils/handle-call-started-note.ts";
-import { handleCallFailedNote } from "./utils/handle-call-failed-note.ts";
+import { handleCallEndedNote } from "./utils/handle-call-ended-note.ts";
 
 const RING_SWEEP_MILLISECONDS = 30 * 1000;
 
@@ -26,16 +27,18 @@ await connectRedis();
 const commandsReader = await createRedisConnection();
 await ensureConsumerGroup(config.COMMANDS_STREAM, ENGINE_GROUP);
 
-const trips = new TripStore();
 const calls = new CallStore();
-const engine = new TripEngine(trips);
 const runtime: VoiceRuntime = new LiveKitVoiceRuntime();
-const callManager = new CallManager(runtime, trips, calls);
-const dispatcher = new CallDispatcher(callManager, engine, trips, calls);
-const callFacts = new CallFacts(engine, trips, calls);
+const manager = new CallManager(runtime, calls);
+const callFacts = new CallFacts(calls);
 
 async function handleNote(note: StreamNote): Promise<void> {
   const kind = note.body.kind;
+
+  if (kind === CommandKind.CALL_REQUEST) {
+    await handleCallRequestNote(note, calls, manager);
+    return;
+  }
   if (kind === CommandKind.FACT_EXTRACTED) {
     await handleFactNote(note, callFacts);
     return;
@@ -44,11 +47,12 @@ async function handleNote(note: StreamNote): Promise<void> {
     await handleCallStartedNote(note, calls);
     return;
   }
-  if (kind === CommandKind.CALL_FAILED) {
-    await handleCallFailedNote(note, calls);
+  if (kind === CommandKind.CALL_ENDED || kind === CommandKind.CALL_FAILED) {
+    await handleCallEndedNote(note, calls);
     return;
   }
-  await handleTripEventNote(note, engine, dispatcher);
+
+  console.error(`[engine] unknown note kind ${String(kind)}`);
 }
 
 await recoverPending(commandsReader, handleNote);

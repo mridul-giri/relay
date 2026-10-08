@@ -2,14 +2,11 @@ import express from "express";
 import { config } from "@repo/config";
 import { connectRedis } from "@repo/redis";
 import { apiRouter } from "./routes/index.ts";
-import { allowBrowserCalls } from "./middleware/allow-browser-calls.ts";
 import { errorHandler } from "./middleware/error-handler.ts";
 
 const app = express();
 
-app.use(allowBrowserCalls);
 app.use(express.json());
-
 app.use(apiRouter);
 
 await connectRedis();

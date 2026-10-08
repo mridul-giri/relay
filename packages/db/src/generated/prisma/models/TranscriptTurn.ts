@@ -26,7 +26,7 @@ export type AggregateTranscriptTurn = {
 
 export type TranscriptTurnMinAggregateOutputType = {
   id: string | null
-  callAttemptId: string | null
+  callId: string | null
   speaker: $Enums.TranscriptSpeaker | null
   text: string | null
   spokenAt: Date | null
@@ -35,7 +35,7 @@ export type TranscriptTurnMinAggregateOutputType = {
 
 export type TranscriptTurnMaxAggregateOutputType = {
   id: string | null
-  callAttemptId: string | null
+  callId: string | null
   speaker: $Enums.TranscriptSpeaker | null
   text: string | null
   spokenAt: Date | null
@@ -44,7 +44,7 @@ export type TranscriptTurnMaxAggregateOutputType = {
 
 export type TranscriptTurnCountAggregateOutputType = {
   id: number
-  callAttemptId: number
+  callId: number
   speaker: number
   text: number
   spokenAt: number
@@ -55,7 +55,7 @@ export type TranscriptTurnCountAggregateOutputType = {
 
 export type TranscriptTurnMinAggregateInputType = {
   id?: true
-  callAttemptId?: true
+  callId?: true
   speaker?: true
   text?: true
   spokenAt?: true
@@ -64,7 +64,7 @@ export type TranscriptTurnMinAggregateInputType = {
 
 export type TranscriptTurnMaxAggregateInputType = {
   id?: true
-  callAttemptId?: true
+  callId?: true
   speaker?: true
   text?: true
   spokenAt?: true
@@ -73,7 +73,7 @@ export type TranscriptTurnMaxAggregateInputType = {
 
 export type TranscriptTurnCountAggregateInputType = {
   id?: true
-  callAttemptId?: true
+  callId?: true
   speaker?: true
   text?: true
   spokenAt?: true
@@ -155,7 +155,7 @@ export type TranscriptTurnGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 
 export type TranscriptTurnGroupByOutputType = {
   id: string
-  callAttemptId: string
+  callId: string
   speaker: $Enums.TranscriptSpeaker
   text: string
   spokenAt: Date
@@ -185,22 +185,22 @@ export type TranscriptTurnWhereInput = {
   OR?: Prisma.TranscriptTurnWhereInput[]
   NOT?: Prisma.TranscriptTurnWhereInput | Prisma.TranscriptTurnWhereInput[]
   id?: Prisma.StringFilter<"TranscriptTurn"> | string
-  callAttemptId?: Prisma.StringFilter<"TranscriptTurn"> | string
+  callId?: Prisma.StringFilter<"TranscriptTurn"> | string
   speaker?: Prisma.EnumTranscriptSpeakerFilter<"TranscriptTurn"> | $Enums.TranscriptSpeaker
   text?: Prisma.StringFilter<"TranscriptTurn"> | string
   spokenAt?: Prisma.DateTimeFilter<"TranscriptTurn"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"TranscriptTurn"> | Date | string
-  callAttempt?: Prisma.XOR<Prisma.CallAttemptScalarRelationFilter, Prisma.CallAttemptWhereInput>
+  call?: Prisma.XOR<Prisma.CallScalarRelationFilter, Prisma.CallWhereInput>
 }
 
 export type TranscriptTurnOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   speaker?: Prisma.SortOrder
   text?: Prisma.SortOrder
   spokenAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  callAttempt?: Prisma.CallAttemptOrderByWithRelationInput
+  call?: Prisma.CallOrderByWithRelationInput
 }
 
 export type TranscriptTurnWhereUniqueInput = Prisma.AtLeast<{
@@ -208,17 +208,17 @@ export type TranscriptTurnWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.TranscriptTurnWhereInput | Prisma.TranscriptTurnWhereInput[]
   OR?: Prisma.TranscriptTurnWhereInput[]
   NOT?: Prisma.TranscriptTurnWhereInput | Prisma.TranscriptTurnWhereInput[]
-  callAttemptId?: Prisma.StringFilter<"TranscriptTurn"> | string
+  callId?: Prisma.StringFilter<"TranscriptTurn"> | string
   speaker?: Prisma.EnumTranscriptSpeakerFilter<"TranscriptTurn"> | $Enums.TranscriptSpeaker
   text?: Prisma.StringFilter<"TranscriptTurn"> | string
   spokenAt?: Prisma.DateTimeFilter<"TranscriptTurn"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"TranscriptTurn"> | Date | string
-  callAttempt?: Prisma.XOR<Prisma.CallAttemptScalarRelationFilter, Prisma.CallAttemptWhereInput>
+  call?: Prisma.XOR<Prisma.CallScalarRelationFilter, Prisma.CallWhereInput>
 }, "id">
 
 export type TranscriptTurnOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   speaker?: Prisma.SortOrder
   text?: Prisma.SortOrder
   spokenAt?: Prisma.SortOrder
@@ -233,7 +233,7 @@ export type TranscriptTurnScalarWhereWithAggregatesInput = {
   OR?: Prisma.TranscriptTurnScalarWhereWithAggregatesInput[]
   NOT?: Prisma.TranscriptTurnScalarWhereWithAggregatesInput | Prisma.TranscriptTurnScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"TranscriptTurn"> | string
-  callAttemptId?: Prisma.StringWithAggregatesFilter<"TranscriptTurn"> | string
+  callId?: Prisma.StringWithAggregatesFilter<"TranscriptTurn"> | string
   speaker?: Prisma.EnumTranscriptSpeakerWithAggregatesFilter<"TranscriptTurn"> | $Enums.TranscriptSpeaker
   text?: Prisma.StringWithAggregatesFilter<"TranscriptTurn"> | string
   spokenAt?: Prisma.DateTimeWithAggregatesFilter<"TranscriptTurn"> | Date | string
@@ -246,12 +246,12 @@ export type TranscriptTurnCreateInput = {
   text: string
   spokenAt: Date | string
   createdAt?: Date | string
-  callAttempt: Prisma.CallAttemptCreateNestedOneWithoutTranscriptTurnsInput
+  call: Prisma.CallCreateNestedOneWithoutTranscriptsInput
 }
 
 export type TranscriptTurnUncheckedCreateInput = {
   id?: string
-  callAttemptId: string
+  callId: string
   speaker: $Enums.TranscriptSpeaker
   text: string
   spokenAt: Date | string
@@ -264,12 +264,12 @@ export type TranscriptTurnUpdateInput = {
   text?: Prisma.StringFieldUpdateOperationsInput | string
   spokenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  callAttempt?: Prisma.CallAttemptUpdateOneRequiredWithoutTranscriptTurnsNestedInput
+  call?: Prisma.CallUpdateOneRequiredWithoutTranscriptsNestedInput
 }
 
 export type TranscriptTurnUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  callAttemptId?: Prisma.StringFieldUpdateOperationsInput | string
+  callId?: Prisma.StringFieldUpdateOperationsInput | string
   speaker?: Prisma.EnumTranscriptSpeakerFieldUpdateOperationsInput | $Enums.TranscriptSpeaker
   text?: Prisma.StringFieldUpdateOperationsInput | string
   spokenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -278,7 +278,7 @@ export type TranscriptTurnUncheckedUpdateInput = {
 
 export type TranscriptTurnCreateManyInput = {
   id?: string
-  callAttemptId: string
+  callId: string
   speaker: $Enums.TranscriptSpeaker
   text: string
   spokenAt: Date | string
@@ -295,7 +295,7 @@ export type TranscriptTurnUpdateManyMutationInput = {
 
 export type TranscriptTurnUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  callAttemptId?: Prisma.StringFieldUpdateOperationsInput | string
+  callId?: Prisma.StringFieldUpdateOperationsInput | string
   speaker?: Prisma.EnumTranscriptSpeakerFieldUpdateOperationsInput | $Enums.TranscriptSpeaker
   text?: Prisma.StringFieldUpdateOperationsInput | string
   spokenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -314,7 +314,7 @@ export type TranscriptTurnOrderByRelationAggregateInput = {
 
 export type TranscriptTurnCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   speaker?: Prisma.SortOrder
   text?: Prisma.SortOrder
   spokenAt?: Prisma.SortOrder
@@ -323,7 +323,7 @@ export type TranscriptTurnCountOrderByAggregateInput = {
 
 export type TranscriptTurnMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   speaker?: Prisma.SortOrder
   text?: Prisma.SortOrder
   spokenAt?: Prisma.SortOrder
@@ -332,52 +332,52 @@ export type TranscriptTurnMaxOrderByAggregateInput = {
 
 export type TranscriptTurnMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   speaker?: Prisma.SortOrder
   text?: Prisma.SortOrder
   spokenAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
-export type TranscriptTurnCreateNestedManyWithoutCallAttemptInput = {
-  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput> | Prisma.TranscriptTurnCreateWithoutCallAttemptInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput[]
-  createMany?: Prisma.TranscriptTurnCreateManyCallAttemptInputEnvelope
+export type TranscriptTurnCreateNestedManyWithoutCallInput = {
+  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallInput> | Prisma.TranscriptTurnCreateWithoutCallInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallInput[]
+  createMany?: Prisma.TranscriptTurnCreateManyCallInputEnvelope
   connect?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
 }
 
-export type TranscriptTurnUncheckedCreateNestedManyWithoutCallAttemptInput = {
-  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput> | Prisma.TranscriptTurnCreateWithoutCallAttemptInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput[]
-  createMany?: Prisma.TranscriptTurnCreateManyCallAttemptInputEnvelope
+export type TranscriptTurnUncheckedCreateNestedManyWithoutCallInput = {
+  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallInput> | Prisma.TranscriptTurnCreateWithoutCallInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallInput[]
+  createMany?: Prisma.TranscriptTurnCreateManyCallInputEnvelope
   connect?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
 }
 
-export type TranscriptTurnUpdateManyWithoutCallAttemptNestedInput = {
-  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput> | Prisma.TranscriptTurnCreateWithoutCallAttemptInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput[]
-  upsert?: Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallAttemptInput | Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallAttemptInput[]
-  createMany?: Prisma.TranscriptTurnCreateManyCallAttemptInputEnvelope
+export type TranscriptTurnUpdateManyWithoutCallNestedInput = {
+  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallInput> | Prisma.TranscriptTurnCreateWithoutCallInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallInput[]
+  upsert?: Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallInput | Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallInput[]
+  createMany?: Prisma.TranscriptTurnCreateManyCallInputEnvelope
   set?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
   disconnect?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
   delete?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
   connect?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
-  update?: Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallAttemptInput | Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallAttemptInput[]
-  updateMany?: Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallAttemptInput | Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallAttemptInput[]
+  update?: Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallInput | Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallInput[]
+  updateMany?: Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallInput | Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallInput[]
   deleteMany?: Prisma.TranscriptTurnScalarWhereInput | Prisma.TranscriptTurnScalarWhereInput[]
 }
 
-export type TranscriptTurnUncheckedUpdateManyWithoutCallAttemptNestedInput = {
-  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput> | Prisma.TranscriptTurnCreateWithoutCallAttemptInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallAttemptInput[]
-  upsert?: Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallAttemptInput | Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallAttemptInput[]
-  createMany?: Prisma.TranscriptTurnCreateManyCallAttemptInputEnvelope
+export type TranscriptTurnUncheckedUpdateManyWithoutCallNestedInput = {
+  create?: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallInput> | Prisma.TranscriptTurnCreateWithoutCallInput[] | Prisma.TranscriptTurnUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.TranscriptTurnCreateOrConnectWithoutCallInput | Prisma.TranscriptTurnCreateOrConnectWithoutCallInput[]
+  upsert?: Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallInput | Prisma.TranscriptTurnUpsertWithWhereUniqueWithoutCallInput[]
+  createMany?: Prisma.TranscriptTurnCreateManyCallInputEnvelope
   set?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
   disconnect?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
   delete?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
   connect?: Prisma.TranscriptTurnWhereUniqueInput | Prisma.TranscriptTurnWhereUniqueInput[]
-  update?: Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallAttemptInput | Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallAttemptInput[]
-  updateMany?: Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallAttemptInput | Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallAttemptInput[]
+  update?: Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallInput | Prisma.TranscriptTurnUpdateWithWhereUniqueWithoutCallInput[]
+  updateMany?: Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallInput | Prisma.TranscriptTurnUpdateManyWithWhereWithoutCallInput[]
   deleteMany?: Prisma.TranscriptTurnScalarWhereInput | Prisma.TranscriptTurnScalarWhereInput[]
 }
 
@@ -385,7 +385,7 @@ export type EnumTranscriptSpeakerFieldUpdateOperationsInput = {
   set?: $Enums.TranscriptSpeaker
 }
 
-export type TranscriptTurnCreateWithoutCallAttemptInput = {
+export type TranscriptTurnCreateWithoutCallInput = {
   id?: string
   speaker: $Enums.TranscriptSpeaker
   text: string
@@ -393,7 +393,7 @@ export type TranscriptTurnCreateWithoutCallAttemptInput = {
   createdAt?: Date | string
 }
 
-export type TranscriptTurnUncheckedCreateWithoutCallAttemptInput = {
+export type TranscriptTurnUncheckedCreateWithoutCallInput = {
   id?: string
   speaker: $Enums.TranscriptSpeaker
   text: string
@@ -401,30 +401,30 @@ export type TranscriptTurnUncheckedCreateWithoutCallAttemptInput = {
   createdAt?: Date | string
 }
 
-export type TranscriptTurnCreateOrConnectWithoutCallAttemptInput = {
+export type TranscriptTurnCreateOrConnectWithoutCallInput = {
   where: Prisma.TranscriptTurnWhereUniqueInput
-  create: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput>
+  create: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallInput>
 }
 
-export type TranscriptTurnCreateManyCallAttemptInputEnvelope = {
-  data: Prisma.TranscriptTurnCreateManyCallAttemptInput | Prisma.TranscriptTurnCreateManyCallAttemptInput[]
+export type TranscriptTurnCreateManyCallInputEnvelope = {
+  data: Prisma.TranscriptTurnCreateManyCallInput | Prisma.TranscriptTurnCreateManyCallInput[]
   skipDuplicates?: boolean
 }
 
-export type TranscriptTurnUpsertWithWhereUniqueWithoutCallAttemptInput = {
+export type TranscriptTurnUpsertWithWhereUniqueWithoutCallInput = {
   where: Prisma.TranscriptTurnWhereUniqueInput
-  update: Prisma.XOR<Prisma.TranscriptTurnUpdateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedUpdateWithoutCallAttemptInput>
-  create: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallAttemptInput>
+  update: Prisma.XOR<Prisma.TranscriptTurnUpdateWithoutCallInput, Prisma.TranscriptTurnUncheckedUpdateWithoutCallInput>
+  create: Prisma.XOR<Prisma.TranscriptTurnCreateWithoutCallInput, Prisma.TranscriptTurnUncheckedCreateWithoutCallInput>
 }
 
-export type TranscriptTurnUpdateWithWhereUniqueWithoutCallAttemptInput = {
+export type TranscriptTurnUpdateWithWhereUniqueWithoutCallInput = {
   where: Prisma.TranscriptTurnWhereUniqueInput
-  data: Prisma.XOR<Prisma.TranscriptTurnUpdateWithoutCallAttemptInput, Prisma.TranscriptTurnUncheckedUpdateWithoutCallAttemptInput>
+  data: Prisma.XOR<Prisma.TranscriptTurnUpdateWithoutCallInput, Prisma.TranscriptTurnUncheckedUpdateWithoutCallInput>
 }
 
-export type TranscriptTurnUpdateManyWithWhereWithoutCallAttemptInput = {
+export type TranscriptTurnUpdateManyWithWhereWithoutCallInput = {
   where: Prisma.TranscriptTurnScalarWhereInput
-  data: Prisma.XOR<Prisma.TranscriptTurnUpdateManyMutationInput, Prisma.TranscriptTurnUncheckedUpdateManyWithoutCallAttemptInput>
+  data: Prisma.XOR<Prisma.TranscriptTurnUpdateManyMutationInput, Prisma.TranscriptTurnUncheckedUpdateManyWithoutCallInput>
 }
 
 export type TranscriptTurnScalarWhereInput = {
@@ -432,14 +432,14 @@ export type TranscriptTurnScalarWhereInput = {
   OR?: Prisma.TranscriptTurnScalarWhereInput[]
   NOT?: Prisma.TranscriptTurnScalarWhereInput | Prisma.TranscriptTurnScalarWhereInput[]
   id?: Prisma.StringFilter<"TranscriptTurn"> | string
-  callAttemptId?: Prisma.StringFilter<"TranscriptTurn"> | string
+  callId?: Prisma.StringFilter<"TranscriptTurn"> | string
   speaker?: Prisma.EnumTranscriptSpeakerFilter<"TranscriptTurn"> | $Enums.TranscriptSpeaker
   text?: Prisma.StringFilter<"TranscriptTurn"> | string
   spokenAt?: Prisma.DateTimeFilter<"TranscriptTurn"> | Date | string
   createdAt?: Prisma.DateTimeFilter<"TranscriptTurn"> | Date | string
 }
 
-export type TranscriptTurnCreateManyCallAttemptInput = {
+export type TranscriptTurnCreateManyCallInput = {
   id?: string
   speaker: $Enums.TranscriptSpeaker
   text: string
@@ -447,7 +447,7 @@ export type TranscriptTurnCreateManyCallAttemptInput = {
   createdAt?: Date | string
 }
 
-export type TranscriptTurnUpdateWithoutCallAttemptInput = {
+export type TranscriptTurnUpdateWithoutCallInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   speaker?: Prisma.EnumTranscriptSpeakerFieldUpdateOperationsInput | $Enums.TranscriptSpeaker
   text?: Prisma.StringFieldUpdateOperationsInput | string
@@ -455,7 +455,7 @@ export type TranscriptTurnUpdateWithoutCallAttemptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type TranscriptTurnUncheckedUpdateWithoutCallAttemptInput = {
+export type TranscriptTurnUncheckedUpdateWithoutCallInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   speaker?: Prisma.EnumTranscriptSpeakerFieldUpdateOperationsInput | $Enums.TranscriptSpeaker
   text?: Prisma.StringFieldUpdateOperationsInput | string
@@ -463,7 +463,7 @@ export type TranscriptTurnUncheckedUpdateWithoutCallAttemptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type TranscriptTurnUncheckedUpdateManyWithoutCallAttemptInput = {
+export type TranscriptTurnUncheckedUpdateManyWithoutCallInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   speaker?: Prisma.EnumTranscriptSpeakerFieldUpdateOperationsInput | $Enums.TranscriptSpeaker
   text?: Prisma.StringFieldUpdateOperationsInput | string
@@ -475,62 +475,62 @@ export type TranscriptTurnUncheckedUpdateManyWithoutCallAttemptInput = {
 
 export type TranscriptTurnSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   speaker?: boolean
   text?: boolean
   spokenAt?: boolean
   createdAt?: boolean
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["transcriptTurn"]>
 
 export type TranscriptTurnSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   speaker?: boolean
   text?: boolean
   spokenAt?: boolean
   createdAt?: boolean
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["transcriptTurn"]>
 
 export type TranscriptTurnSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   speaker?: boolean
   text?: boolean
   spokenAt?: boolean
   createdAt?: boolean
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["transcriptTurn"]>
 
 export type TranscriptTurnSelectScalar = {
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   speaker?: boolean
   text?: boolean
   spokenAt?: boolean
   createdAt?: boolean
 }
 
-export type TranscriptTurnOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "callAttemptId" | "speaker" | "text" | "spokenAt" | "createdAt", ExtArgs["result"]["transcriptTurn"]>
+export type TranscriptTurnOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "callId" | "speaker" | "text" | "spokenAt" | "createdAt", ExtArgs["result"]["transcriptTurn"]>
 export type TranscriptTurnInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }
 export type TranscriptTurnIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }
 export type TranscriptTurnIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }
 
 export type $TranscriptTurnPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "TranscriptTurn"
   objects: {
-    callAttempt: Prisma.$CallAttemptPayload<ExtArgs>
+    call: Prisma.$CallPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    callAttemptId: string
+    callId: string
     speaker: $Enums.TranscriptSpeaker
     text: string
     spokenAt: Date
@@ -929,7 +929,7 @@ readonly fields: TranscriptTurnFieldRefs;
  */
 export interface Prisma__TranscriptTurnClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  callAttempt<T extends Prisma.CallAttemptDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CallAttemptDefaultArgs<ExtArgs>>): Prisma.Prisma__CallAttemptClient<runtime.Types.Result.GetResult<Prisma.$CallAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  call<T extends Prisma.CallDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CallDefaultArgs<ExtArgs>>): Prisma.Prisma__CallClient<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -960,7 +960,7 @@ export interface Prisma__TranscriptTurnClient<T, Null = never, ExtArgs extends r
  */
 export interface TranscriptTurnFieldRefs {
   readonly id: Prisma.FieldRef<"TranscriptTurn", 'String'>
-  readonly callAttemptId: Prisma.FieldRef<"TranscriptTurn", 'String'>
+  readonly callId: Prisma.FieldRef<"TranscriptTurn", 'String'>
   readonly speaker: Prisma.FieldRef<"TranscriptTurn", 'TranscriptSpeaker'>
   readonly text: Prisma.FieldRef<"TranscriptTurn", 'String'>
   readonly spokenAt: Prisma.FieldRef<"TranscriptTurn", 'DateTime'>

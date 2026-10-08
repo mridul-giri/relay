@@ -18,25 +18,15 @@ export { Prisma }
 export * as $Enums from './enums.ts'
 export * from './enums.ts';
 /**
- * Model Trip
+ * Model Merchant
  * 
  */
-export type Trip = Prisma.TripModel
+export type Merchant = Prisma.MerchantModel
 /**
- * Model TripEvent
+ * Model Call
  * 
  */
-export type TripEvent = Prisma.TripEventModel
-/**
- * Model AuditLog
- * 
- */
-export type AuditLog = Prisma.AuditLogModel
-/**
- * Model CallAttempt
- * 
- */
-export type CallAttempt = Prisma.CallAttemptModel
+export type Call = Prisma.CallModel
 /**
  * Model TranscriptTurn
  * 
@@ -47,8 +37,3 @@ export type TranscriptTurn = Prisma.TranscriptTurnModel
  * 
  */
 export type ToolCall = Prisma.ToolCallModel
-/**
- * Model Escalation
- * 
- */
-export type Escalation = Prisma.EscalationModel

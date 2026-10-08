@@ -9,41 +9,25 @@
 * 🟢 You can import this file directly.
 */
 
-export const TripStatus = {
-  ASSIGNED: 'ASSIGNED',
-  EN_ROUTE: 'EN_ROUTE',
-  DELAYED: 'DELAYED',
+export const CallStatus = {
+  QUEUED: 'QUEUED',
+  CALLING: 'CALLING',
+  ENDED: 'ENDED'
+} as const
+
+export type CallStatus = (typeof CallStatus)[keyof typeof CallStatus]
+
+
+export const CallOutcome = {
   RESCHEDULED: 'RESCHEDULED',
-  DELIVERED: 'DELIVERED',
-  ESCALATED: 'ESCALATED'
-} as const
-
-export type TripStatus = (typeof TripStatus)[keyof typeof TripStatus]
-
-
-export const CallPersona = {
-  DRIVER: 'DRIVER',
-  CUSTOMER: 'CUSTOMER'
-} as const
-
-export type CallPersona = (typeof CallPersona)[keyof typeof CallPersona]
-
-
-export const CallReason = {
-  DELAY: 'DELAY'
-} as const
-
-export type CallReason = (typeof CallReason)[keyof typeof CallReason]
-
-
-export const CallAttemptStatus = {
-  RINGING: 'RINGING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  COMPLETED: 'COMPLETED',
+  CANCELLATION_REQUESTED: 'CANCELLATION_REQUESTED',
+  HUMAN_REQUESTED: 'HUMAN_REQUESTED',
+  NO_DECISION: 'NO_DECISION',
+  NO_ANSWER: 'NO_ANSWER',
   FAILED: 'FAILED'
 } as const
 
-export type CallAttemptStatus = (typeof CallAttemptStatus)[keyof typeof CallAttemptStatus]
+export type CallOutcome = (typeof CallOutcome)[keyof typeof CallOutcome]
 
 
 export const TranscriptSpeaker = {

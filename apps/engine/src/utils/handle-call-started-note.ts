@@ -6,6 +6,6 @@ export async function handleCallStartedNote(
   calls: CallStore,
 ): Promise<void> {
   const message = note.body as unknown as CallStatusMessage;
-  await calls.markCallInProgress(message.callAttemptId);
-  console.log(`[engine] call.in_progress call=${message.callAttemptId}`);
+  await calls.markCallStarted(message.callId);
+  console.log(`[engine] call.started call=${message.callId}`);
 }

@@ -3,21 +3,29 @@ import { publishToStream } from "@repo/redis";
 import { CommandKind } from "@repo/types";
 import type { CallStatusMessage } from "@repo/types";
 
-export async function publishCallStarted(callAttemptId: string): Promise<void> {
+export async function publishCallStarted(callId: string): Promise<void> {
   const message: CallStatusMessage = {
     kind: CommandKind.CALL_STARTED,
-    callAttemptId,
+    callId,
+  };
+  await publishToStream(config.COMMANDS_STREAM, message);
+}
+
+export async function publishCallEnded(callId: string): Promise<void> {
+  const message: CallStatusMessage = {
+    kind: CommandKind.CALL_ENDED,
+    callId,
   };
   await publishToStream(config.COMMANDS_STREAM, message);
 }
 
 export async function publishCallFailed(
-  callAttemptId: string,
+  callId: string,
   reason: string,
 ): Promise<void> {
   const message: CallStatusMessage = {
     kind: CommandKind.CALL_FAILED,
-    callAttemptId,
+    callId,
     reason,
   };
   await publishToStream(config.COMMANDS_STREAM, message);

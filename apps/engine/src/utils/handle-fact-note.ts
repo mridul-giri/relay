@@ -7,5 +7,5 @@ export async function handleFactNote(
 ): Promise<void> {
   const fact = note.body as unknown as FactMessage;
   await callFacts.handleFact(fact);
-  console.log(`[engine] fact call=${fact.callAttemptId} tool=${fact.tool}`);
+  console.log(`[engine] fact call=${fact.callId} tool=${fact.tool}`);
 }

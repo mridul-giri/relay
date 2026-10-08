@@ -3,33 +3,28 @@
 import { use, useEffect, useState } from "react";
 import axios from "axios";
 import type { CallSession } from "@repo/types";
-import {
-  LiveKitRoom,
-  RoomAudioRenderer,
-} from "@livekit/components-react";
+import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
 import "@livekit/components-styles";
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
 export default function CallPage({
   params,
 }: {
-  params: Promise<{ callAttemptId: string }>;
+  params: Promise<{ callId: string }>;
 }) {
-  const { callAttemptId } = use(params);
+  const { callId } = use(params);
   const [session, setSession] = useState<CallSession | null>(null);
   const [answered, setAnswered] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     axios
-      .post<CallSession>(`${API_URL}/call-attempts/${callAttemptId}/session`)
+      .post<CallSession>(`/api/calls/${callId}/session`)
       .then((res) => setSession(res.data))
       .catch((err) => {
         const message = err instanceof Error ? err.message : String(err);
         setError(message);
       });
-  }, [callAttemptId]);
+  }, [callId]);
 
   if (error) {
     return (

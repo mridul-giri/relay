@@ -1,12 +1,17 @@
 import { prisma } from "@repo/db";
-import type { TranscriptTurn } from "@repo/types";
 
-export function saveTranscript(turn: TranscriptTurn): void {
+export function saveTranscript(turn: {
+  callId: string;
+  speaker: "AGENT" | "CALLER";
+  text: string;
+  spokenAt: string;
+}): void {
   const spokenAt = new Date(turn.spokenAt);
+
   void prisma.transcriptTurn
     .create({
       data: {
-        callAttemptId: turn.callAttemptId,
+        callId: turn.callId,
         speaker: turn.speaker,
         text: turn.text,
         spokenAt,

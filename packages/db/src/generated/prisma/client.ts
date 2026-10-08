@@ -31,8 +31,8 @@ export * from "./enums.ts"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more Trips
- * const trips = await prisma.trip.findMany()
+ * // Fetch zero or more Merchants
+ * const merchants = await prisma.merchant.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -42,25 +42,15 @@ export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts exten
 export { Prisma }
 
 /**
- * Model Trip
+ * Model Merchant
  * 
  */
-export type Trip = Prisma.TripModel
+export type Merchant = Prisma.MerchantModel
 /**
- * Model TripEvent
+ * Model Call
  * 
  */
-export type TripEvent = Prisma.TripEventModel
-/**
- * Model AuditLog
- * 
- */
-export type AuditLog = Prisma.AuditLogModel
-/**
- * Model CallAttempt
- * 
- */
-export type CallAttempt = Prisma.CallAttemptModel
+export type Call = Prisma.CallModel
 /**
  * Model TranscriptTurn
  * 
@@ -71,8 +61,3 @@ export type TranscriptTurn = Prisma.TranscriptTurnModel
  * 
  */
 export type ToolCall = Prisma.ToolCallModel
-/**
- * Model Escalation
- * 
- */
-export type Escalation = Prisma.EscalationModel

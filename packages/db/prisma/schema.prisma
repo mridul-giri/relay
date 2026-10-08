@@ -7,129 +7,83 @@ datasource db {
   provider = "postgresql"
 }
 
-model Trip {
-  id                String     @id
-  status            TripStatus
-  driverName        String
-  driverPhone       String
-  customerName      String
-  customerPhone     String
-  plannedEtaMinutes Int
-  etaMinutes        Int
-  slot              String?
-  note              String?
-  delayReason       String?
-  version           Int        @default(1)
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+model Merchant {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
 
-  events       TripEvent[]
-  auditLogs    AuditLog[]
-  callAttempts CallAttempt[]
-  escalations  Escalation[]
-
-  @@index([createdAt, id])
+  calls Call[]
 }
 
-model TripEvent {
-  id            String   @id @default(uuid())
-  eventId       String   @unique
-  tripId        String
-  type          String
-  payload       Json
-  occurredAt    DateTime
-  versionBefore Int
-  versionAfter  Int
-  createdAt     DateTime @default(now())
+model Call {
+  id         String       @id
+  requestId  String       @unique
+  merchantId String
+  orderRef   String
+  status     CallStatus   @default(QUEUED)
+  outcome    CallOutcome?
 
-  trip Trip @relation(fields: [tripId], references: [id])
-}
+  customerName     String
+  customerPhone    String
+  customerLanguage String  @default("en")
+  driverName       String?
+  driverPhone      String?
+  productName      String?
+  productSku       String?
+  etaMinutes       Int
+  message          String?
 
-model AuditLog {
-  id        String   @id @default(uuid())
-  tripId    String
-  type      String
-  message   String
-  data      Json?
-  createdAt DateTime @default(now())
+  policy       Json
+  offeredSlots Json
 
-  trip Trip @relation(fields: [tripId], references: [id])
-}
+  createdAt DateTime  @default(now())
+  startedAt DateTime?
+  endedAt   DateTime?
 
-model CallAttempt {
-  id            String            @id @default(uuid())
-  tripId        String
-  persona       CallPersona
-  reason        CallReason
-  ruleId        String
-  sourceEventId String
-  status        CallAttemptStatus
-  slots         Json
-  createdAt     DateTime          @default(now())
-  endedAt       DateTime?
+  merchant    Merchant         @relation(fields: [merchantId], references: [id])
+  transcripts TranscriptTurn[]
+  toolCalls   ToolCall[]
 
-  trip            Trip             @relation(fields: [tripId], references: [id])
-  toolCalls       ToolCall[]
-  transcriptTurns TranscriptTurn[]
-
-  @@unique([tripId, ruleId, sourceEventId])
+  @@index([merchantId, createdAt])
 }
 
 model TranscriptTurn {
-  id            String            @id @default(uuid())
-  callAttemptId String
-  speaker       TranscriptSpeaker
-  text          String
-  spokenAt      DateTime
-  createdAt     DateTime          @default(now())
+  id        String            @id @default(uuid())
+  callId    String
+  speaker   TranscriptSpeaker
+  text      String
+  spokenAt  DateTime
+  createdAt DateTime          @default(now())
 
-  callAttempt CallAttempt @relation(fields: [callAttemptId], references: [id])
+  call Call @relation(fields: [callId], references: [id])
 }
 
 model ToolCall {
-  id            String   @id @default(uuid())
-  callAttemptId String
-  tool          String
-  args          Json
-  accepted      Boolean
-  reason        String
-  createdAt     DateTime @default(now())
-
-  callAttempt CallAttempt @relation(fields: [callAttemptId], references: [id])
-}
-
-model Escalation {
   id        String   @id @default(uuid())
-  tripId    String
-  ruleId    String
+  callId    String
+  tool      String
+  args      Json
+  accepted  Boolean
   reason    String
   createdAt DateTime @default(now())
 
-  trip Trip @relation(fields: [tripId], references: [id])
+  call Call @relation(fields: [callId], references: [id])
 }
 
-enum TripStatus {
-  ASSIGNED
-  EN_ROUTE
-  DELAYED
+enum CallStatus {
+  QUEUED
+  CALLING
+  ENDED
+}
+
+enum CallOutcome {
   RESCHEDULED
-  DELIVERED
-  ESCALATED
-}
-
-enum CallPersona {
-  DRIVER
-  CUSTOMER
-}
-
-enum CallReason {
-  DELAY
-}
-
-enum CallAttemptStatus {
-  RINGING
-  IN_PROGRESS
-  COMPLETED
+  CANCELLATION_REQUESTED
+  HUMAN_REQUESTED
+  NO_DECISION
+  NO_ANSWER
   FAILED
 }
 

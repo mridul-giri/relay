@@ -26,7 +26,7 @@ export type AggregateToolCall = {
 
 export type ToolCallMinAggregateOutputType = {
   id: string | null
-  callAttemptId: string | null
+  callId: string | null
   tool: string | null
   accepted: boolean | null
   reason: string | null
@@ -35,7 +35,7 @@ export type ToolCallMinAggregateOutputType = {
 
 export type ToolCallMaxAggregateOutputType = {
   id: string | null
-  callAttemptId: string | null
+  callId: string | null
   tool: string | null
   accepted: boolean | null
   reason: string | null
@@ -44,7 +44,7 @@ export type ToolCallMaxAggregateOutputType = {
 
 export type ToolCallCountAggregateOutputType = {
   id: number
-  callAttemptId: number
+  callId: number
   tool: number
   args: number
   accepted: number
@@ -56,7 +56,7 @@ export type ToolCallCountAggregateOutputType = {
 
 export type ToolCallMinAggregateInputType = {
   id?: true
-  callAttemptId?: true
+  callId?: true
   tool?: true
   accepted?: true
   reason?: true
@@ -65,7 +65,7 @@ export type ToolCallMinAggregateInputType = {
 
 export type ToolCallMaxAggregateInputType = {
   id?: true
-  callAttemptId?: true
+  callId?: true
   tool?: true
   accepted?: true
   reason?: true
@@ -74,7 +74,7 @@ export type ToolCallMaxAggregateInputType = {
 
 export type ToolCallCountAggregateInputType = {
   id?: true
-  callAttemptId?: true
+  callId?: true
   tool?: true
   args?: true
   accepted?: true
@@ -157,7 +157,7 @@ export type ToolCallGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type ToolCallGroupByOutputType = {
   id: string
-  callAttemptId: string
+  callId: string
   tool: string
   args: runtime.JsonValue
   accepted: boolean
@@ -188,24 +188,24 @@ export type ToolCallWhereInput = {
   OR?: Prisma.ToolCallWhereInput[]
   NOT?: Prisma.ToolCallWhereInput | Prisma.ToolCallWhereInput[]
   id?: Prisma.StringFilter<"ToolCall"> | string
-  callAttemptId?: Prisma.StringFilter<"ToolCall"> | string
+  callId?: Prisma.StringFilter<"ToolCall"> | string
   tool?: Prisma.StringFilter<"ToolCall"> | string
   args?: Prisma.JsonFilter<"ToolCall">
   accepted?: Prisma.BoolFilter<"ToolCall"> | boolean
   reason?: Prisma.StringFilter<"ToolCall"> | string
   createdAt?: Prisma.DateTimeFilter<"ToolCall"> | Date | string
-  callAttempt?: Prisma.XOR<Prisma.CallAttemptScalarRelationFilter, Prisma.CallAttemptWhereInput>
+  call?: Prisma.XOR<Prisma.CallScalarRelationFilter, Prisma.CallWhereInput>
 }
 
 export type ToolCallOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   tool?: Prisma.SortOrder
   args?: Prisma.SortOrder
   accepted?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  callAttempt?: Prisma.CallAttemptOrderByWithRelationInput
+  call?: Prisma.CallOrderByWithRelationInput
 }
 
 export type ToolCallWhereUniqueInput = Prisma.AtLeast<{
@@ -213,18 +213,18 @@ export type ToolCallWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ToolCallWhereInput | Prisma.ToolCallWhereInput[]
   OR?: Prisma.ToolCallWhereInput[]
   NOT?: Prisma.ToolCallWhereInput | Prisma.ToolCallWhereInput[]
-  callAttemptId?: Prisma.StringFilter<"ToolCall"> | string
+  callId?: Prisma.StringFilter<"ToolCall"> | string
   tool?: Prisma.StringFilter<"ToolCall"> | string
   args?: Prisma.JsonFilter<"ToolCall">
   accepted?: Prisma.BoolFilter<"ToolCall"> | boolean
   reason?: Prisma.StringFilter<"ToolCall"> | string
   createdAt?: Prisma.DateTimeFilter<"ToolCall"> | Date | string
-  callAttempt?: Prisma.XOR<Prisma.CallAttemptScalarRelationFilter, Prisma.CallAttemptWhereInput>
+  call?: Prisma.XOR<Prisma.CallScalarRelationFilter, Prisma.CallWhereInput>
 }, "id">
 
 export type ToolCallOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   tool?: Prisma.SortOrder
   args?: Prisma.SortOrder
   accepted?: Prisma.SortOrder
@@ -240,7 +240,7 @@ export type ToolCallScalarWhereWithAggregatesInput = {
   OR?: Prisma.ToolCallScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ToolCallScalarWhereWithAggregatesInput | Prisma.ToolCallScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ToolCall"> | string
-  callAttemptId?: Prisma.StringWithAggregatesFilter<"ToolCall"> | string
+  callId?: Prisma.StringWithAggregatesFilter<"ToolCall"> | string
   tool?: Prisma.StringWithAggregatesFilter<"ToolCall"> | string
   args?: Prisma.JsonWithAggregatesFilter<"ToolCall">
   accepted?: Prisma.BoolWithAggregatesFilter<"ToolCall"> | boolean
@@ -255,12 +255,12 @@ export type ToolCallCreateInput = {
   accepted: boolean
   reason: string
   createdAt?: Date | string
-  callAttempt: Prisma.CallAttemptCreateNestedOneWithoutToolCallsInput
+  call: Prisma.CallCreateNestedOneWithoutToolCallsInput
 }
 
 export type ToolCallUncheckedCreateInput = {
   id?: string
-  callAttemptId: string
+  callId: string
   tool: string
   args: Prisma.JsonNullValueInput | runtime.InputJsonValue
   accepted: boolean
@@ -275,12 +275,12 @@ export type ToolCallUpdateInput = {
   accepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  callAttempt?: Prisma.CallAttemptUpdateOneRequiredWithoutToolCallsNestedInput
+  call?: Prisma.CallUpdateOneRequiredWithoutToolCallsNestedInput
 }
 
 export type ToolCallUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  callAttemptId?: Prisma.StringFieldUpdateOperationsInput | string
+  callId?: Prisma.StringFieldUpdateOperationsInput | string
   tool?: Prisma.StringFieldUpdateOperationsInput | string
   args?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   accepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -290,7 +290,7 @@ export type ToolCallUncheckedUpdateInput = {
 
 export type ToolCallCreateManyInput = {
   id?: string
-  callAttemptId: string
+  callId: string
   tool: string
   args: Prisma.JsonNullValueInput | runtime.InputJsonValue
   accepted: boolean
@@ -309,7 +309,7 @@ export type ToolCallUpdateManyMutationInput = {
 
 export type ToolCallUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  callAttemptId?: Prisma.StringFieldUpdateOperationsInput | string
+  callId?: Prisma.StringFieldUpdateOperationsInput | string
   tool?: Prisma.StringFieldUpdateOperationsInput | string
   args?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   accepted?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -329,7 +329,7 @@ export type ToolCallOrderByRelationAggregateInput = {
 
 export type ToolCallCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   tool?: Prisma.SortOrder
   args?: Prisma.SortOrder
   accepted?: Prisma.SortOrder
@@ -339,7 +339,7 @@ export type ToolCallCountOrderByAggregateInput = {
 
 export type ToolCallMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   tool?: Prisma.SortOrder
   accepted?: Prisma.SortOrder
   reason?: Prisma.SortOrder
@@ -348,52 +348,52 @@ export type ToolCallMaxOrderByAggregateInput = {
 
 export type ToolCallMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  callAttemptId?: Prisma.SortOrder
+  callId?: Prisma.SortOrder
   tool?: Prisma.SortOrder
   accepted?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
-export type ToolCallCreateNestedManyWithoutCallAttemptInput = {
-  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallAttemptInput, Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput> | Prisma.ToolCallCreateWithoutCallAttemptInput[] | Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput | Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput[]
-  createMany?: Prisma.ToolCallCreateManyCallAttemptInputEnvelope
+export type ToolCallCreateNestedManyWithoutCallInput = {
+  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallInput, Prisma.ToolCallUncheckedCreateWithoutCallInput> | Prisma.ToolCallCreateWithoutCallInput[] | Prisma.ToolCallUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallInput | Prisma.ToolCallCreateOrConnectWithoutCallInput[]
+  createMany?: Prisma.ToolCallCreateManyCallInputEnvelope
   connect?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
 }
 
-export type ToolCallUncheckedCreateNestedManyWithoutCallAttemptInput = {
-  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallAttemptInput, Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput> | Prisma.ToolCallCreateWithoutCallAttemptInput[] | Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput | Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput[]
-  createMany?: Prisma.ToolCallCreateManyCallAttemptInputEnvelope
+export type ToolCallUncheckedCreateNestedManyWithoutCallInput = {
+  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallInput, Prisma.ToolCallUncheckedCreateWithoutCallInput> | Prisma.ToolCallCreateWithoutCallInput[] | Prisma.ToolCallUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallInput | Prisma.ToolCallCreateOrConnectWithoutCallInput[]
+  createMany?: Prisma.ToolCallCreateManyCallInputEnvelope
   connect?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
 }
 
-export type ToolCallUpdateManyWithoutCallAttemptNestedInput = {
-  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallAttemptInput, Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput> | Prisma.ToolCallCreateWithoutCallAttemptInput[] | Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput | Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput[]
-  upsert?: Prisma.ToolCallUpsertWithWhereUniqueWithoutCallAttemptInput | Prisma.ToolCallUpsertWithWhereUniqueWithoutCallAttemptInput[]
-  createMany?: Prisma.ToolCallCreateManyCallAttemptInputEnvelope
+export type ToolCallUpdateManyWithoutCallNestedInput = {
+  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallInput, Prisma.ToolCallUncheckedCreateWithoutCallInput> | Prisma.ToolCallCreateWithoutCallInput[] | Prisma.ToolCallUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallInput | Prisma.ToolCallCreateOrConnectWithoutCallInput[]
+  upsert?: Prisma.ToolCallUpsertWithWhereUniqueWithoutCallInput | Prisma.ToolCallUpsertWithWhereUniqueWithoutCallInput[]
+  createMany?: Prisma.ToolCallCreateManyCallInputEnvelope
   set?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
   disconnect?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
   delete?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
   connect?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
-  update?: Prisma.ToolCallUpdateWithWhereUniqueWithoutCallAttemptInput | Prisma.ToolCallUpdateWithWhereUniqueWithoutCallAttemptInput[]
-  updateMany?: Prisma.ToolCallUpdateManyWithWhereWithoutCallAttemptInput | Prisma.ToolCallUpdateManyWithWhereWithoutCallAttemptInput[]
+  update?: Prisma.ToolCallUpdateWithWhereUniqueWithoutCallInput | Prisma.ToolCallUpdateWithWhereUniqueWithoutCallInput[]
+  updateMany?: Prisma.ToolCallUpdateManyWithWhereWithoutCallInput | Prisma.ToolCallUpdateManyWithWhereWithoutCallInput[]
   deleteMany?: Prisma.ToolCallScalarWhereInput | Prisma.ToolCallScalarWhereInput[]
 }
 
-export type ToolCallUncheckedUpdateManyWithoutCallAttemptNestedInput = {
-  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallAttemptInput, Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput> | Prisma.ToolCallCreateWithoutCallAttemptInput[] | Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput[]
-  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput | Prisma.ToolCallCreateOrConnectWithoutCallAttemptInput[]
-  upsert?: Prisma.ToolCallUpsertWithWhereUniqueWithoutCallAttemptInput | Prisma.ToolCallUpsertWithWhereUniqueWithoutCallAttemptInput[]
-  createMany?: Prisma.ToolCallCreateManyCallAttemptInputEnvelope
+export type ToolCallUncheckedUpdateManyWithoutCallNestedInput = {
+  create?: Prisma.XOR<Prisma.ToolCallCreateWithoutCallInput, Prisma.ToolCallUncheckedCreateWithoutCallInput> | Prisma.ToolCallCreateWithoutCallInput[] | Prisma.ToolCallUncheckedCreateWithoutCallInput[]
+  connectOrCreate?: Prisma.ToolCallCreateOrConnectWithoutCallInput | Prisma.ToolCallCreateOrConnectWithoutCallInput[]
+  upsert?: Prisma.ToolCallUpsertWithWhereUniqueWithoutCallInput | Prisma.ToolCallUpsertWithWhereUniqueWithoutCallInput[]
+  createMany?: Prisma.ToolCallCreateManyCallInputEnvelope
   set?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
   disconnect?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
   delete?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
   connect?: Prisma.ToolCallWhereUniqueInput | Prisma.ToolCallWhereUniqueInput[]
-  update?: Prisma.ToolCallUpdateWithWhereUniqueWithoutCallAttemptInput | Prisma.ToolCallUpdateWithWhereUniqueWithoutCallAttemptInput[]
-  updateMany?: Prisma.ToolCallUpdateManyWithWhereWithoutCallAttemptInput | Prisma.ToolCallUpdateManyWithWhereWithoutCallAttemptInput[]
+  update?: Prisma.ToolCallUpdateWithWhereUniqueWithoutCallInput | Prisma.ToolCallUpdateWithWhereUniqueWithoutCallInput[]
+  updateMany?: Prisma.ToolCallUpdateManyWithWhereWithoutCallInput | Prisma.ToolCallUpdateManyWithWhereWithoutCallInput[]
   deleteMany?: Prisma.ToolCallScalarWhereInput | Prisma.ToolCallScalarWhereInput[]
 }
 
@@ -401,7 +401,7 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
-export type ToolCallCreateWithoutCallAttemptInput = {
+export type ToolCallCreateWithoutCallInput = {
   id?: string
   tool: string
   args: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -410,7 +410,7 @@ export type ToolCallCreateWithoutCallAttemptInput = {
   createdAt?: Date | string
 }
 
-export type ToolCallUncheckedCreateWithoutCallAttemptInput = {
+export type ToolCallUncheckedCreateWithoutCallInput = {
   id?: string
   tool: string
   args: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -419,30 +419,30 @@ export type ToolCallUncheckedCreateWithoutCallAttemptInput = {
   createdAt?: Date | string
 }
 
-export type ToolCallCreateOrConnectWithoutCallAttemptInput = {
+export type ToolCallCreateOrConnectWithoutCallInput = {
   where: Prisma.ToolCallWhereUniqueInput
-  create: Prisma.XOR<Prisma.ToolCallCreateWithoutCallAttemptInput, Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput>
+  create: Prisma.XOR<Prisma.ToolCallCreateWithoutCallInput, Prisma.ToolCallUncheckedCreateWithoutCallInput>
 }
 
-export type ToolCallCreateManyCallAttemptInputEnvelope = {
-  data: Prisma.ToolCallCreateManyCallAttemptInput | Prisma.ToolCallCreateManyCallAttemptInput[]
+export type ToolCallCreateManyCallInputEnvelope = {
+  data: Prisma.ToolCallCreateManyCallInput | Prisma.ToolCallCreateManyCallInput[]
   skipDuplicates?: boolean
 }
 
-export type ToolCallUpsertWithWhereUniqueWithoutCallAttemptInput = {
+export type ToolCallUpsertWithWhereUniqueWithoutCallInput = {
   where: Prisma.ToolCallWhereUniqueInput
-  update: Prisma.XOR<Prisma.ToolCallUpdateWithoutCallAttemptInput, Prisma.ToolCallUncheckedUpdateWithoutCallAttemptInput>
-  create: Prisma.XOR<Prisma.ToolCallCreateWithoutCallAttemptInput, Prisma.ToolCallUncheckedCreateWithoutCallAttemptInput>
+  update: Prisma.XOR<Prisma.ToolCallUpdateWithoutCallInput, Prisma.ToolCallUncheckedUpdateWithoutCallInput>
+  create: Prisma.XOR<Prisma.ToolCallCreateWithoutCallInput, Prisma.ToolCallUncheckedCreateWithoutCallInput>
 }
 
-export type ToolCallUpdateWithWhereUniqueWithoutCallAttemptInput = {
+export type ToolCallUpdateWithWhereUniqueWithoutCallInput = {
   where: Prisma.ToolCallWhereUniqueInput
-  data: Prisma.XOR<Prisma.ToolCallUpdateWithoutCallAttemptInput, Prisma.ToolCallUncheckedUpdateWithoutCallAttemptInput>
+  data: Prisma.XOR<Prisma.ToolCallUpdateWithoutCallInput, Prisma.ToolCallUncheckedUpdateWithoutCallInput>
 }
 
-export type ToolCallUpdateManyWithWhereWithoutCallAttemptInput = {
+export type ToolCallUpdateManyWithWhereWithoutCallInput = {
   where: Prisma.ToolCallScalarWhereInput
-  data: Prisma.XOR<Prisma.ToolCallUpdateManyMutationInput, Prisma.ToolCallUncheckedUpdateManyWithoutCallAttemptInput>
+  data: Prisma.XOR<Prisma.ToolCallUpdateManyMutationInput, Prisma.ToolCallUncheckedUpdateManyWithoutCallInput>
 }
 
 export type ToolCallScalarWhereInput = {
@@ -450,7 +450,7 @@ export type ToolCallScalarWhereInput = {
   OR?: Prisma.ToolCallScalarWhereInput[]
   NOT?: Prisma.ToolCallScalarWhereInput | Prisma.ToolCallScalarWhereInput[]
   id?: Prisma.StringFilter<"ToolCall"> | string
-  callAttemptId?: Prisma.StringFilter<"ToolCall"> | string
+  callId?: Prisma.StringFilter<"ToolCall"> | string
   tool?: Prisma.StringFilter<"ToolCall"> | string
   args?: Prisma.JsonFilter<"ToolCall">
   accepted?: Prisma.BoolFilter<"ToolCall"> | boolean
@@ -458,7 +458,7 @@ export type ToolCallScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ToolCall"> | Date | string
 }
 
-export type ToolCallCreateManyCallAttemptInput = {
+export type ToolCallCreateManyCallInput = {
   id?: string
   tool: string
   args: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -467,7 +467,7 @@ export type ToolCallCreateManyCallAttemptInput = {
   createdAt?: Date | string
 }
 
-export type ToolCallUpdateWithoutCallAttemptInput = {
+export type ToolCallUpdateWithoutCallInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tool?: Prisma.StringFieldUpdateOperationsInput | string
   args?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -476,7 +476,7 @@ export type ToolCallUpdateWithoutCallAttemptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ToolCallUncheckedUpdateWithoutCallAttemptInput = {
+export type ToolCallUncheckedUpdateWithoutCallInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tool?: Prisma.StringFieldUpdateOperationsInput | string
   args?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -485,7 +485,7 @@ export type ToolCallUncheckedUpdateWithoutCallAttemptInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ToolCallUncheckedUpdateManyWithoutCallAttemptInput = {
+export type ToolCallUncheckedUpdateManyWithoutCallInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   tool?: Prisma.StringFieldUpdateOperationsInput | string
   args?: Prisma.JsonNullValueInput | runtime.InputJsonValue
@@ -498,40 +498,40 @@ export type ToolCallUncheckedUpdateManyWithoutCallAttemptInput = {
 
 export type ToolCallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   tool?: boolean
   args?: boolean
   accepted?: boolean
   reason?: boolean
   createdAt?: boolean
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["toolCall"]>
 
 export type ToolCallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   tool?: boolean
   args?: boolean
   accepted?: boolean
   reason?: boolean
   createdAt?: boolean
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["toolCall"]>
 
 export type ToolCallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   tool?: boolean
   args?: boolean
   accepted?: boolean
   reason?: boolean
   createdAt?: boolean
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["toolCall"]>
 
 export type ToolCallSelectScalar = {
   id?: boolean
-  callAttemptId?: boolean
+  callId?: boolean
   tool?: boolean
   args?: boolean
   accepted?: boolean
@@ -539,25 +539,25 @@ export type ToolCallSelectScalar = {
   createdAt?: boolean
 }
 
-export type ToolCallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "callAttemptId" | "tool" | "args" | "accepted" | "reason" | "createdAt", ExtArgs["result"]["toolCall"]>
+export type ToolCallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "callId" | "tool" | "args" | "accepted" | "reason" | "createdAt", ExtArgs["result"]["toolCall"]>
 export type ToolCallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }
 export type ToolCallIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }
 export type ToolCallIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  callAttempt?: boolean | Prisma.CallAttemptDefaultArgs<ExtArgs>
+  call?: boolean | Prisma.CallDefaultArgs<ExtArgs>
 }
 
 export type $ToolCallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ToolCall"
   objects: {
-    callAttempt: Prisma.$CallAttemptPayload<ExtArgs>
+    call: Prisma.$CallPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    callAttemptId: string
+    callId: string
     tool: string
     args: runtime.JsonValue
     accepted: boolean
@@ -957,7 +957,7 @@ readonly fields: ToolCallFieldRefs;
  */
 export interface Prisma__ToolCallClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  callAttempt<T extends Prisma.CallAttemptDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CallAttemptDefaultArgs<ExtArgs>>): Prisma.Prisma__CallAttemptClient<runtime.Types.Result.GetResult<Prisma.$CallAttemptPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  call<T extends Prisma.CallDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CallDefaultArgs<ExtArgs>>): Prisma.Prisma__CallClient<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -988,7 +988,7 @@ export interface Prisma__ToolCallClient<T, Null = never, ExtArgs extends runtime
  */
 export interface ToolCallFieldRefs {
   readonly id: Prisma.FieldRef<"ToolCall", 'String'>
-  readonly callAttemptId: Prisma.FieldRef<"ToolCall", 'String'>
+  readonly callId: Prisma.FieldRef<"ToolCall", 'String'>
   readonly tool: Prisma.FieldRef<"ToolCall", 'String'>
   readonly args: Prisma.FieldRef<"ToolCall", 'Json'>
   readonly accepted: Prisma.FieldRef<"ToolCall", 'Boolean'>

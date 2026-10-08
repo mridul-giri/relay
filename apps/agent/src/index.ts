@@ -13,15 +13,19 @@ import {
 } from "@livekit/agents";
 import * as silero from "@livekit/agents-plugin-silero";
 import { ToolName } from "@repo/types";
-import { callAttemptIdFromRoomName } from "@repo/core";
+import { callIdFromRoomName } from "@repo/core";
 import { config } from "@repo/config";
 import { connectRedis } from "@repo/redis";
 import { missingVoiceSettings } from "./settings.ts";
-import { readBrief } from "./brief.ts";
-import { buildInstructions } from "./persona.ts";
-import { recordSlotChoice } from "./facts.ts";
+import { readCallContext } from "./call-context.ts";
+import { buildInstructions } from "./instructions.ts";
+import { recordCancel, recordHumanRequest, recordSlotChoice } from "./facts.ts";
 import { saveTranscript } from "./transcripts.ts";
-import { publishCallFailed, publishCallStarted } from "./call-status.ts";
+import {
+  publishCallEnded,
+  publishCallFailed,
+  publishCallStarted,
+} from "./call-status.ts";
 
 const missing = missingVoiceSettings();
 if (missing.length > 0) {
@@ -50,8 +54,8 @@ export default defineAgent({
     await ensureRedis();
 
     const roomName = ctx.room.name ?? "";
-    const callAttemptId = callAttemptIdFromRoomName(roomName);
-    if (!callAttemptId) {
+    const callId = callIdFromRoomName(roomName);
+    if (!callId) {
       console.error(`[agent] ignoring non-relay room: ${roomName}`);
       return;
     }
@@ -59,11 +63,9 @@ export default defineAgent({
     let decisionRecorded = false;
 
     try {
-      const brief = await readBrief(callAttemptId);
-      const instructions = buildInstructions(brief);
-      console.log(
-        `[agent] call.start call=${callAttemptId} persona=${brief.attempt.persona}`,
-      );
+      const call = await readCallContext(callId);
+      const instructions = buildInstructions(call);
+      console.log(`[agent] call.start call=${callId}`);
 
       const vad = await silero.VAD.load();
       const stt = new inference.STT({ model: "deepgram/nova-3" });
@@ -81,13 +83,43 @@ export default defineAgent({
           slotId: z.string().describe("One of the offered slot ids"),
         }),
         execute: async (args: { slotId: string }) => {
-          await recordSlotChoice(callAttemptId, args.slotId);
+          await recordSlotChoice(callId, args.slotId);
           decisionRecorded = true;
           return "The choice is recorded. Tell the person they will get a confirmation.";
         },
       });
 
-      const agent = Agent.create({ instructions, tools: [selectSlot] });
+      const cancel = tool({
+        name: ToolName.CANCEL,
+        description: "Record that the person wants to cancel the delivery.",
+        parameters: z.object({
+          reason: z.string().optional().describe("Why they want to cancel"),
+        }),
+        execute: async (args: { reason?: string }) => {
+          await recordCancel(callId, args.reason);
+          decisionRecorded = true;
+          return "The cancellation request is recorded. Tell the person the merchant will handle it.";
+        },
+      });
+
+      const requestHuman = tool({
+        name: ToolName.REQUEST_HUMAN,
+        description:
+          "Record that the person wants to speak to a person instead.",
+        parameters: z.object({
+          reason: z.string().optional().describe("Why they want a person"),
+        }),
+        execute: async (args: { reason?: string }) => {
+          await recordHumanRequest(callId, args.reason);
+          decisionRecorded = true;
+          return "A person will follow up. Tell the person that and say goodbye.";
+        },
+      });
+
+      const agent = Agent.create({
+        instructions,
+        tools: [selectSlot, cancel, requestHuman],
+      });
 
       const session = new AgentSession({
         vad,
@@ -101,19 +133,20 @@ export default defineAgent({
         if (!ev.isFinal) return;
         const spokenAt = new Date().toISOString();
         saveTranscript({
-          callAttemptId,
+          callId,
           speaker: "CALLER",
           text: ev.transcript,
           spokenAt,
         });
       });
+
       session.on(AgentSessionEventTypes.ConversationItemAdded, (ev) => {
         const item = ev.item;
         if (item.type !== "message") return;
         if (item.role !== "assistant") return;
         const spokenAt = new Date().toISOString();
         saveTranscript({
-          callAttemptId,
+          callId,
           speaker: "AGENT",
           text: item.textContent ?? "",
           spokenAt,
@@ -122,22 +155,20 @@ export default defineAgent({
 
       session.on(AgentSessionEventTypes.Close, () => {
         if (decisionRecorded) return;
-        void publishCallFailed(callAttemptId, "call ended without a decision");
+        void publishCallEnded(callId);
       });
 
-      console.log(
-        `[agent] waiting for the person to join call=${callAttemptId}`,
-      );
+      console.log(`[agent] waiting for the person to join call=${callId}`);
       await ctx.waitForParticipant();
 
       await session.start({ agent, room: ctx.room });
-      console.log(`[agent] session.started call=${callAttemptId}`);
+      console.log(`[agent] session.started call=${callId}`);
 
-      await publishCallStarted(callAttemptId);
+      await publishCallStarted(callId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      console.error(`[agent] call.failed call=${callAttemptId} ${message}`);
-      await publishCallFailed(callAttemptId, message);
+      console.error(`[agent] call.failed call=${callId} ${message}`);
+      await publishCallFailed(callId, message);
     }
   },
 });
