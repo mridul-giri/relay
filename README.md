@@ -87,5 +87,3 @@ stream and does the work.
 
 Only the engine writes to Postgres. The API reads it to show the console, and
 the agent reads it to know what to say.
-
----
