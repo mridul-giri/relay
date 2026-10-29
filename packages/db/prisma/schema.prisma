@@ -20,6 +20,7 @@ model Merchant {
 model Call {
   id         String       @id
   requestId  String       @unique
+  roomName   String       @unique
   merchantId String
   orderRef   String
   status     CallStatus   @default(QUEUED)
@@ -37,6 +38,7 @@ model Call {
 
   policy       Json
   offeredSlots Json
+  chosenSlot   Json?
 
   createdAt DateTime  @default(now())
   startedAt DateTime?
@@ -44,7 +46,6 @@ model Call {
 
   merchant    Merchant         @relation(fields: [merchantId], references: [id])
   transcripts TranscriptTurn[]
-  toolCalls   ToolCall[]
 
   @@index([merchantId, createdAt])
 }
@@ -56,18 +57,6 @@ model TranscriptTurn {
   text      String
   spokenAt  DateTime
   createdAt DateTime          @default(now())
-
-  call Call @relation(fields: [callId], references: [id])
-}
-
-model ToolCall {
-  id        String   @id @default(uuid())
-  callId    String
-  tool      String
-  args      Json
-  accepted  Boolean
-  reason    String
-  createdAt DateTime @default(now())
 
   call Call @relation(fields: [callId], references: [id])
 }

@@ -10,11 +10,7 @@
   "dependencies": {
     "@livekit/agents": "1.6.3",
     "@livekit/agents-plugin-silero": "1.6.3",
-    "@repo/config": "*",
-    "@repo/core": "*",
     "@repo/db": "*",
-    "@repo/redis": "*",
-    "@repo/types": "*",
     "zod": "^4.4.3"
   },
   "devDependencies": {

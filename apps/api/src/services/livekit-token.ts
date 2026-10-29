@@ -1,12 +1,11 @@
-import { config } from "@repo/config";
-import type { CallSession } from "@repo/types";
 import { AccessToken } from "livekit-server-sdk";
+import { config } from "../config.ts";
 
 export async function createSession(params: {
   roomName: string;
   identity: string;
   participantName: string;
-}): Promise<CallSession> {
+}) {
   if (
     !config.LIVEKIT_URL ||
     !config.LIVEKIT_API_KEY ||

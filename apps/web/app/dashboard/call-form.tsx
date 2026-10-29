@@ -3,25 +3,31 @@
 import { useState, type FormEvent } from "react";
 import { api } from "../lib/api";
 import { errorMessage } from "../lib/errors";
+import { ArrowIcon } from "../components/icons";
 
-function dayFromNow(offsetDays: number): string {
+function localTimeFromNow(offsetDays: number, hour: number) {
   const date = new Date();
   date.setDate(date.getDate() + offsetDays);
-  return date.toISOString().slice(0, 10);
+  const day = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+  const time = `${String(hour).padStart(2, "0")}:00`;
+  return `${day}T${time}`;
 }
-
-const DEFAULT_DAYS = [dayFromNow(1), dayFromNow(2), dayFromNow(3)];
 
 interface CallFormProps {
   onClose: () => void;
+  onPlaced: (callId: string) => void;
 }
 
-export function CallForm({ onClose }: CallFormProps) {
+export function CallForm({ onClose, onPlaced }: CallFormProps) {
   const [requestId] = useState(() => crypto.randomUUID());
   const [orderRef] = useState(
     () => `SHOP-${Math.floor(Math.random() * 90000) + 10000}`,
   );
-  const [customerName, setCustomerName] = useState("Priya");
+  const [customerName, setCustomerName] = useState("Harvey");
   const [customerPhone, setCustomerPhone] = useState("+10000000002");
   const [language, setLanguage] = useState("en");
   const [driverName, setDriverName] = useState("Marcus");
@@ -34,21 +40,21 @@ export function CallForm({ onClose }: CallFormProps) {
   );
   const [mayCancel, setMayCancel] = useState(true);
   const [mayReschedule, setMayReschedule] = useState(true);
-  const [daysText, setDaysText] = useState(DEFAULT_DAYS.join(", "));
-  const [from, setFrom] = useState("09:00");
-  const [to, setTo] = useState("18:00");
+  const [slotTimes, setSlotTimes] = useState(() => [
+    localTimeFromNow(1, 12),
+    localTimeFromNow(1, 14),
+    localTimeFromNow(1, 16),
+  ]);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
-  async function submit(event: FormEvent): Promise<void> {
+  async function submit(event: FormEvent) {
     event.preventDefault();
     setBusy(true);
     setError(null);
 
-    const days = daysText
-      .split(",")
-      .map((day) => day.trim())
-      .filter((day) => day !== "");
+    const filledTimes = slotTimes.filter((time) => time !== "");
+    const slots = filledTimes.map((time) => new Date(time).toISOString());
 
     const body = {
       requestId,
@@ -63,186 +69,203 @@ export function CallForm({ onClose }: CallFormProps) {
       policy: {
         mayCancel,
         mayReschedule,
-        rescheduleWindow: mayReschedule ? { days, from, to } : undefined,
+        slots: mayReschedule ? slots : [],
       },
     };
 
     try {
-      await api.post("/api/calls", body);
-      onClose();
+      const res = await api.post<{ callId: string }>("/api/calls", body);
+      const callId = res.data.callId;
+      onPlaced(callId);
     } catch (err) {
-      setError(errorMessage(err));
+      const text = errorMessage(err);
+      setError(text);
     } finally {
       setBusy(false);
     }
   }
 
-  const field = { display: "block", width: "100%", padding: 8 } as const;
-
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.4)",
-        display: "flex",
-        alignItems: "flex-start",
-        justifyContent: "center",
-        padding: 24,
-        overflow: "auto",
-      }}
-    >
+    <div className="fixed inset-0 z-40 flex items-start justify-center overflow-auto bg-[rgb(5_5_6/0.78)] px-4 py-8 backdrop-blur-[3px]">
       <form
         onSubmit={submit}
-        style={{
-          background: "white",
-          borderRadius: 12,
-          padding: 24,
-          width: 520,
-          maxWidth: "100%",
-          display: "grid",
-          gap: 10,
-          fontFamily: "system-ui, sans-serif",
-        }}
+        className="panel grid w-[640px] max-w-full gap-[26px] px-6 pt-7 pb-8"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="call-form-title"
       >
-        <h2 style={{ margin: 0 }}>Call customer</h2>
-        <p style={{ margin: 0, color: "#666" }}>Order {orderRef}</p>
+        <div className="grid gap-1.5">
+          <h2
+            id="call-form-title"
+            className="pixel text-[28px] leading-[1.1] text-foreground"
+          >
+            Call customer
+          </h2>
+          <p className="mono text-[13px] text-muted-foreground">
+            Order {orderRef}
+          </p>
+        </div>
 
-        <label>
-          Customer name
-          <input
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          Customer phone
-          <input
-            value={customerPhone}
-            onChange={(e) => setCustomerPhone(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          Language
-          <input
-            value={language}
-            onChange={(e) => setLanguage(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          Driver name
-          <input
-            value={driverName}
-            onChange={(e) => setDriverName(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          Driver phone
-          <input
-            value={driverPhone}
-            onChange={(e) => setDriverPhone(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          Product
-          <input
-            value={productName}
-            onChange={(e) => setProductName(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          Product SKU
-          <input
-            value={productSku}
-            onChange={(e) => setProductSku(e.target.value)}
-            style={field}
-          />
-        </label>
-        <label>
-          ETA (minutes)
-          <input
-            type="number"
-            value={etaMinutes}
-            onChange={(e) => setEtaMinutes(Number(e.target.value))}
-            style={field}
-          />
-        </label>
-        <label>
-          Message
-          <textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            style={field}
-          />
-        </label>
-
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input
-            type="checkbox"
-            checked={mayCancel}
-            onChange={(e) => setMayCancel(e.target.checked)}
-          />
-          May cancel
-        </label>
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input
-            type="checkbox"
-            checked={mayReschedule}
-            onChange={(e) => setMayReschedule(e.target.checked)}
-          />
-          May reschedule
-        </label>
-
-        {mayReschedule ? (
-          <>
-            <label>
-              Reschedule days (comma separated)
+        <fieldset className="grid gap-3.5 border-0">
+          <legend className="pixel mb-0.5 border-b border-border pb-2 text-sm text-foreground">
+            Customer
+          </legend>
+          <div className="grid gap-3.5 min-[560px]:grid-cols-2">
+            <label className="field">
+              <span className="field-label">Name</span>
               <input
-                value={daysText}
-                onChange={(e) => setDaysText(e.target.value)}
-                style={field}
+                className="input"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
               />
             </label>
-            <div style={{ display: "flex", gap: 10 }}>
-              <label style={{ flex: 1 }}>
-                From
-                <input
-                  value={from}
-                  onChange={(e) => setFrom(e.target.value)}
-                  style={field}
-                />
-              </label>
-              <label style={{ flex: 1 }}>
-                To
-                <input
-                  value={to}
-                  onChange={(e) => setTo(e.target.value)}
-                  style={field}
-                />
-              </label>
+            <label className="field">
+              <span className="field-label">Phone</span>
+              <input
+                className="input mono"
+                type="tel"
+                value={customerPhone}
+                onChange={(e) => setCustomerPhone(e.target.value)}
+              />
+            </label>
+          </div>
+          <label className="field">
+            <span className="field-label">Language</span>
+            <input
+              className="input"
+              value={language}
+              onChange={(e) => setLanguage(e.target.value)}
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="grid gap-3.5 border-0">
+          <legend className="pixel mb-0.5 border-b border-border pb-2 text-sm text-foreground">
+            Delivery
+          </legend>
+          <div className="grid gap-3.5 min-[560px]:grid-cols-2">
+            <label className="field">
+              <span className="field-label">Driver name</span>
+              <input
+                className="input"
+                value={driverName}
+                onChange={(e) => setDriverName(e.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Driver phone</span>
+              <input
+                className="input mono"
+                type="tel"
+                value={driverPhone}
+                onChange={(e) => setDriverPhone(e.target.value)}
+              />
+            </label>
+          </div>
+          <div className="grid gap-3.5 min-[560px]:grid-cols-2">
+            <label className="field">
+              <span className="field-label">Product</span>
+              <input
+                className="input"
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+              />
+            </label>
+            <label className="field">
+              <span className="field-label">Product SKU</span>
+              <input
+                className="input mono"
+                value={productSku}
+                onChange={(e) => setProductSku(e.target.value)}
+              />
+            </label>
+          </div>
+          <label className="field">
+            <span className="field-label">ETA (minutes)</span>
+            <input
+              className="input mono"
+              type="number"
+              min={0}
+              value={etaMinutes}
+              onChange={(e) => setEtaMinutes(Number(e.target.value))}
+            />
+          </label>
+          <label className="field">
+            <span className="field-label">Message</span>
+            <textarea
+              className="input"
+              value={message}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          </label>
+        </fieldset>
+
+        <fieldset className="grid gap-3.5 border-0">
+          <legend className="pixel mb-0.5 border-b border-border pb-2 text-sm text-foreground">
+            What the agent may do
+          </legend>
+          <div className="flex flex-wrap gap-x-7 gap-y-3">
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={mayCancel}
+                onChange={(e) => setMayCancel(e.target.checked)}
+              />
+              May cancel
+            </label>
+            <label className="check">
+              <input
+                type="checkbox"
+                checked={mayReschedule}
+                onChange={(e) => setMayReschedule(e.target.checked)}
+              />
+              May reschedule
+            </label>
+          </div>
+
+          {mayReschedule ? (
+            <div className="grid gap-3.5">
+              {slotTimes.map((time, index) => (
+                <label key={index} className="field">
+                  <span className="field-label">New time {index + 1}</span>
+                  <input
+                    className="input mono"
+                    type="datetime-local"
+                    value={time}
+                    onChange={(e) => {
+                      const nextTimes = [...slotTimes];
+                      nextTimes[index] = e.target.value;
+                      setSlotTimes(nextTimes);
+                    }}
+                  />
+                </label>
+              ))}
             </div>
-          </>
+          ) : null}
+        </fieldset>
+
+        {error ? (
+          <p className="form-error" role="alert">
+            {error}
+          </p>
         ) : null}
 
-        {error ? <p style={{ color: "crimson", margin: 0 }}>{error}</p> : null}
-
-        <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+        <div className="flex flex-wrap justify-end gap-2.5 pt-1">
           <button
             type="button"
             onClick={onClose}
             disabled={busy}
-            style={{ padding: 10 }}
+            className="button button-quiet"
           >
             Cancel
           </button>
-          <button type="submit" disabled={busy} style={{ padding: 10 }}>
-            {busy ? "Placing…" : "Place call"}
+          <button
+            type="submit"
+            disabled={busy}
+            className="button button-primary"
+          >
+            <span>{busy ? "Placing…" : "Place call"}</span>
+            <ArrowIcon />
           </button>
         </div>
       </form>

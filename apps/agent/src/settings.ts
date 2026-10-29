@@ -1,6 +1,6 @@
-import { config } from "@repo/config";
+import { config } from "./config.ts";
 
-export function missingVoiceSettings(): string[] {
+export function missingVoiceSettings() {
   const missing: string[] = [];
   if (!config.LIVEKIT_URL) missing.push("LIVEKIT_URL");
   if (!config.LIVEKIT_API_KEY) missing.push("LIVEKIT_API_KEY");

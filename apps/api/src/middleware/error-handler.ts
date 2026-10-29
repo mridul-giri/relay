@@ -1,14 +1,23 @@
 import type { NextFunction, Request, Response } from "express";
-import { InvalidInputError } from "@repo/core";
+import { z } from "zod";
 
 export function errorHandler(
   err: unknown,
   req: Request,
   res: Response,
   next: NextFunction,
-): void {
+) {
+  if (err instanceof z.ZodError) {
+    const issue = err.issues[0];
+    const path = issue ? issue.path.join(".") : "";
+    const reason = issue ? issue.message : "is invalid";
+    const message = path === "" ? reason : `${path} ${reason}`;
+    console.error(`[api:error] request.invalid status=400 ${message}`);
+    res.status(400).json({ error: message });
+    return;
+  }
+
   const message = err instanceof Error ? err.message : String(err);
-  const status = err instanceof InvalidInputError ? 400 : 500;
-  console.error(`[api:error] request.failed status=${status} ${message}`);
-  res.status(status).json({ error: message || "Internal server error" });
+  console.error(`[api:error] request.failed status=500 ${message}`);
+  res.status(500).json({ error: message || "Internal server error" });
 }

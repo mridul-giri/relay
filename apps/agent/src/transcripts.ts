@@ -5,7 +5,7 @@ export function saveTranscript(turn: {
   speaker: "AGENT" | "CALLER";
   text: string;
   spokenAt: string;
-}): void {
+}) {
   const spokenAt = new Date(turn.spokenAt);
 
   void prisma.transcriptTurn

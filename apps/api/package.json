@@ -5,16 +5,10 @@
   "scripts": {
     "dev": "bun --env-file=../../.env --hot run src/index.ts",
     "start": "bun --env-file=../../.env run src/index.ts",
-    "demo-call": "bun --env-file=../../.env run src/scripts/start-call.ts",
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/config": "*",
-    "@repo/core": "*",
     "@repo/db": "*",
-    "@repo/redis": "*",
-    "@repo/types": "*",
-    "axios": "^1.7.0",
     "bcrypt": "^6.0.0",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",

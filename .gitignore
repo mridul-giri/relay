@@ -27,6 +27,8 @@ out/
 build
 dist
 
+packages/db/src/generated/
+
 
 # Debug
 npm-debug.log*

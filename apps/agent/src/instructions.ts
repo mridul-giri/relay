@@ -1,6 +1,6 @@
 import type { AgentCall } from "./call-context.ts";
 
-export function buildInstructions(call: AgentCall): string {
+export function buildInstructions(call: AgentCall) {
   const deliveryLines: string[] = [];
   if (call.productName !== null) {
     deliveryLines.push(`The product being delivered: ${call.productName}.`);

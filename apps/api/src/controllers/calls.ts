@@ -1,55 +1,88 @@
 import { randomUUID } from "node:crypto";
 import type { NextFunction, Request, Response } from "express";
-import { callRoomName, cleanCallRequest } from "@repo/core";
-import { config } from "@repo/config";
-import { publishToStream } from "@repo/redis";
-import { CommandKind } from "@repo/types";
-import type { CallRequestMessage, IncomingCallRequest } from "@repo/types";
-import { readCall, readCallsForMerchant } from "../reads/call-reader.ts";
+import { prisma, Prisma, CallStatus } from "@repo/db";
+import { callRequestSchema } from "../schemas/calls.ts";
+import { readCallsForMerchant } from "../reads/call-reader.ts";
 import { createSession } from "../services/livekit-token.ts";
+
+const ROOM_PREFIX = "relay-call-";
+
+function toOfferedSlots(times: string[]) {
+  const slots = times.map((startsAt, index) => {
+    const label = new Date(startsAt).toLocaleString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+    return { id: `slot-${index + 1}`, label, startsAt };
+  });
+  return slots;
+}
 
 export async function createCall(
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
-  let request;
+) {
   try {
-    request = cleanCallRequest(req.body as IncomingCallRequest);
+    const request = callRequestSchema.parse(req.body);
+    const merchantId = res.locals.merchantId;
+
+    const { slots, ...policy } = request.policy;
+    const offeredSlots = policy.mayReschedule ? toOfferedSlots(slots) : [];
+
+    const callId = randomUUID();
+    const roomName = `${ROOM_PREFIX}${callId}`;
+
+    await prisma.call.create({
+      data: {
+        id: callId,
+        requestId: request.requestId,
+        roomName,
+        merchantId,
+        orderRef: request.orderRef,
+        status: CallStatus.QUEUED,
+        customerName: request.customer.name,
+        customerPhone: request.customer.phone,
+        customerLanguage: request.customer.language,
+        driverName: request.driver?.name ?? null,
+        driverPhone: request.driver?.phone ?? null,
+        productName: request.product?.name ?? null,
+        productSku: request.product?.sku ?? null,
+        etaMinutes: request.etaMinutes,
+        message: request.message,
+        policy,
+        offeredSlots,
+      },
+    });
+
+    res.status(201).json({ callId });
   } catch (err) {
+    const isRepeatRequest =
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === "P2002";
+    if (isRepeatRequest) {
+      const existing = await prisma.call.findUnique({
+        where: { requestId: req.body.requestId },
+      });
+      if (existing) {
+        res.status(200).json({ callId: existing.id });
+        return;
+      }
+    }
     next(err);
-    return;
   }
-
-  const merchantId = res.locals.merchantId as string;
-  const callId = randomUUID();
-  const message: CallRequestMessage = {
-    kind: CommandKind.CALL_REQUEST,
-    callId,
-    merchantId,
-    request,
-  };
-
-  try {
-    await publishToStream(config.COMMANDS_STREAM, message);
-  } catch (err) {
-    const text = err instanceof Error ? err.message : String(err);
-    console.error(`[api:calls] could not accept call: ${text}`);
-    res.status(503).json({ error: "the command stream is unavailable" });
-    return;
-  }
-
-  console.log(`[api:calls] accepted callId=${callId} merchantId=${merchantId}`);
-  res.status(202).json({ callId });
 }
 
 export async function listCalls(
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+) {
   try {
-    const merchantId = res.locals.merchantId as string;
+    const merchantId = res.locals.merchantId;
     const calls = await readCallsForMerchant(merchantId);
     res.json({ calls });
   } catch (err) {
@@ -61,21 +94,25 @@ export async function startCallSession(
   req: Request,
   res: Response,
   next: NextFunction,
-): Promise<void> {
+) {
   try {
     const callId = req.params.id as string;
 
-    const call = await readCall(callId);
+    const call = await prisma.call.findUnique({ where: { id: callId } });
     if (!call) {
       res.status(404).json({ error: "call not found" });
       return;
     }
 
-    const roomName = callRoomName(callId);
-    const identity = `customer-${callId}`;
+    const hasCallEnded = call.status === CallStatus.ENDED;
+    if (hasCallEnded) {
+      res.status(410).json({ error: "this call has ended" });
+      return;
+    }
+
     const session = await createSession({
-      roomName,
-      identity,
+      roomName: call.roomName,
+      identity: `customer-${callId}`,
       participantName: "Customer",
     });
     res.json(session);

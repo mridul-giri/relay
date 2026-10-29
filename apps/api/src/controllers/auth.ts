@@ -1,26 +1,17 @@
 import type { NextFunction, Request, Response } from "express";
 import { prisma } from "@repo/db";
-import type { AuthResult, Merchant } from "@repo/types";
-import { cleanLogin, cleanSignup } from "../auth/validate.ts";
 import { hashPassword, passwordMatches } from "../auth/passwords.ts";
 import { signMerchantToken } from "../auth/tokens.ts";
+import { loginSchema, signupSchema } from "../schemas/auth.ts";
 
-function toMerchant(row: {
-  id: string;
-  name: string;
-  email: string;
-}): Merchant {
+function toMerchant(row: { id: string; name: string; email: string }) {
   const merchant = { id: row.id, name: row.name, email: row.email };
   return merchant;
 }
 
-export async function signup(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function signup(req: Request, res: Response, next: NextFunction) {
   try {
-    const input = cleanSignup(req.body);
+    const input = signupSchema.parse(req.body);
 
     const existing = await prisma.merchant.findUnique({
       where: { email: input.email },
@@ -36,20 +27,17 @@ export async function signup(
     });
 
     const token = signMerchantToken(row.id);
-    const result: AuthResult = { merchant: toMerchant(row), token };
+    const merchant = toMerchant(row);
+    const result = { merchant, token };
     res.status(201).json(result);
   } catch (err) {
     next(err);
   }
 }
 
-export async function login(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function login(req: Request, res: Response, next: NextFunction) {
   try {
-    const input = cleanLogin(req.body);
+    const input = loginSchema.parse(req.body);
 
     const row = await prisma.merchant.findUnique({
       where: { email: input.email },
@@ -66,20 +54,17 @@ export async function login(
     }
 
     const token = signMerchantToken(row.id);
-    const result: AuthResult = { merchant: toMerchant(row), token };
+    const merchant = toMerchant(row);
+    const result = { merchant, token };
     res.json(result);
   } catch (err) {
     next(err);
   }
 }
 
-export async function me(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function me(req: Request, res: Response, next: NextFunction) {
   try {
-    const merchantId = res.locals.merchantId as string;
+    const merchantId = res.locals.merchantId;
 
     const row = await prisma.merchant.findUnique({ where: { id: merchantId } });
     if (!row) {
@@ -87,7 +72,8 @@ export async function me(
       return;
     }
 
-    res.json({ merchant: toMerchant(row) });
+    const merchant = toMerchant(row);
+    res.json({ merchant });
   } catch (err) {
     next(err);
   }

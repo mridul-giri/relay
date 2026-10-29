@@ -5,7 +5,7 @@ export function requireMerchant(
   req: Request,
   res: Response,
   next: NextFunction,
-): void {
+) {
   const header = req.header("authorization") ?? "";
 
   const [scheme, token] = header.split(" ");

@@ -1,5 +1,4 @@
 import { prisma } from "@repo/db";
-import type { CallPolicy, Slot } from "@repo/types";
 
 export interface AgentCall {
   id: string;
@@ -9,18 +8,13 @@ export interface AgentCall {
   productName: string | null;
   etaMinutes: number;
   message: string | null;
-  policy: CallPolicy;
-  offeredSlots: Slot[];
+  policy: { mayCancel: boolean; mayReschedule: boolean };
+  offeredSlots: { id: string; label: string; startsAt: string }[];
 }
 
-export async function readCallContext(callId: string): Promise<AgentCall> {
-  const row = await prisma.call.findUnique({ where: { id: callId } });
-  if (!row) {
-    throw new Error(`no call ${callId}`);
-  }
-
-  const policy = row.policy as unknown as CallPolicy;
-  const offeredSlots = row.offeredSlots as unknown as Slot[];
+export async function readCallForRoom(roomName: string) {
+  const row = await prisma.call.findUnique({ where: { roomName } });
+  if (!row) return null;
 
   const call: AgentCall = {
     id: row.id,
@@ -30,8 +24,8 @@ export async function readCallContext(callId: string): Promise<AgentCall> {
     productName: row.productName,
     etaMinutes: row.etaMinutes,
     message: row.message,
-    policy,
-    offeredSlots,
+    policy: row.policy as AgentCall["policy"],
+    offeredSlots: row.offeredSlots as AgentCall["offeredSlots"],
   };
   return call;
 }

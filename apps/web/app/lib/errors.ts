@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export function errorMessage(err: unknown): string {
+export function errorMessage(err: unknown) {
   if (axios.isAxiosError(err)) {
     const data = err.response?.data as { error?: unknown } | undefined;
     if (data && typeof data.error === "string") return data.error;

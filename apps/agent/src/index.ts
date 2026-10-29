@@ -12,20 +12,19 @@ import {
   type JobContext,
 } from "@livekit/agents";
 import * as silero from "@livekit/agents-plugin-silero";
-import { ToolName } from "@repo/types";
-import { callIdFromRoomName } from "@repo/core";
-import { config } from "@repo/config";
-import { connectRedis } from "@repo/redis";
+import { config } from "./config.ts";
 import { missingVoiceSettings } from "./settings.ts";
-import { readCallContext } from "./call-context.ts";
+import { readCallForRoom } from "./call-context.ts";
 import { buildInstructions } from "./instructions.ts";
-import { recordCancel, recordHumanRequest, recordSlotChoice } from "./facts.ts";
 import { saveTranscript } from "./transcripts.ts";
 import {
-  publishCallEnded,
-  publishCallFailed,
-  publishCallStarted,
-} from "./call-status.ts";
+  saveCallEnded,
+  saveCallFailed,
+  saveCallStarted,
+  saveCancelRequest,
+  saveHumanRequest,
+  saveSlotChoice,
+} from "./call-results.ts";
 
 const missing = missingVoiceSettings();
 if (missing.length > 0) {
@@ -37,33 +36,23 @@ if (missing.length > 0) {
   process.exit(0);
 }
 
-let redisReady: Promise<void> | null = null;
-function ensureRedis(): Promise<void> {
-  redisReady ??= connectRedis();
-  return redisReady;
-}
-
 export default defineAgent({
   prewarm: async () => {
     await silero.VAD.load();
-    await ensureRedis();
   },
 
   entry: async (ctx: JobContext) => {
     await ctx.connect();
-    await ensureRedis();
 
     const roomName = ctx.room.name ?? "";
-    const callId = callIdFromRoomName(roomName);
-    if (!callId) {
-      console.error(`[agent] ignoring non-relay room: ${roomName}`);
+    const call = await readCallForRoom(roomName);
+    if (!call) {
+      console.error(`[agent] ignoring room with no Relay call: ${roomName}`);
       return;
     }
-
-    let decisionRecorded = false;
+    const callId = call.id;
 
     try {
-      const call = await readCallContext(callId);
       const instructions = buildInstructions(call);
       console.log(`[agent] call.start call=${callId}`);
 
@@ -76,43 +65,40 @@ export default defineAgent({
       const llm = new inference.LLM({ model: "openai/gpt-4o-mini" });
 
       const selectSlot = tool({
-        name: ToolName.SELECT_SLOT,
+        name: "select_slot",
         description:
           "Propose one of the offered reschedule times, using the id of the time the person chose.",
         parameters: z.object({
           slotId: z.string().describe("One of the offered slot ids"),
         }),
         execute: async (args: { slotId: string }) => {
-          await recordSlotChoice(callId, args.slotId);
-          decisionRecorded = true;
-          return "The choice is recorded. Tell the person they will get a confirmation.";
+          const reply = await saveSlotChoice(call, args.slotId);
+          return reply;
         },
       });
 
       const cancel = tool({
-        name: ToolName.CANCEL,
+        name: "cancel",
         description: "Record that the person wants to cancel the delivery.",
         parameters: z.object({
           reason: z.string().optional().describe("Why they want to cancel"),
         }),
-        execute: async (args: { reason?: string }) => {
-          await recordCancel(callId, args.reason);
-          decisionRecorded = true;
-          return "The cancellation request is recorded. Tell the person the merchant will handle it.";
+        execute: async () => {
+          const reply = await saveCancelRequest(call);
+          return reply;
         },
       });
 
       const requestHuman = tool({
-        name: ToolName.REQUEST_HUMAN,
+        name: "request_human",
         description:
           "Record that the person wants to speak to a person instead.",
         parameters: z.object({
           reason: z.string().optional().describe("Why they want a person"),
         }),
-        execute: async (args: { reason?: string }) => {
-          await recordHumanRequest(callId, args.reason);
-          decisionRecorded = true;
-          return "A person will follow up. Tell the person that and say goodbye.";
+        execute: async () => {
+          const reply = await saveHumanRequest(call);
+          return reply;
         },
       });
 
@@ -154,8 +140,7 @@ export default defineAgent({
       });
 
       session.on(AgentSessionEventTypes.Close, () => {
-        if (decisionRecorded) return;
-        void publishCallEnded(callId);
+        void saveCallEnded(callId);
       });
 
       console.log(`[agent] waiting for the person to join call=${callId}`);
@@ -164,11 +149,11 @@ export default defineAgent({
       await session.start({ agent, room: ctx.room });
       console.log(`[agent] session.started call=${callId}`);
 
-      await publishCallStarted(callId);
+      await saveCallStarted(callId);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       console.error(`[agent] call.failed call=${callId} ${message}`);
-      await publishCallFailed(callId, message);
+      await saveCallFailed(callId);
     }
   },
 });
