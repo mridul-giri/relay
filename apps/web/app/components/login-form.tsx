@@ -12,7 +12,7 @@ import { ArrowIcon } from "./icons";
 export function LoginForm() {
   const router = useRouter();
   const [email, setEmail] = useState("demo@relay.local");
-  const [password, setPassword] = useState("demopassword");
+  const [password, setPassword] = useState("Relay-Demo#2026-kq7v");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

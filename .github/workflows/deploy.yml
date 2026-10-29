@@ -52,6 +52,7 @@ jobs:
             cd ~/relay &&
             sed -i -e '/^TAG=/d' -e '\$a\\' .env &&
             echo 'TAG=${{ github.sha }}' >> .env &&
+            docker image prune -af &&
             docker compose -f compose.prod.yaml pull &&
             docker compose -f compose.prod.yaml up -d &&
             docker image prune -af

@@ -13,7 +13,7 @@ export function SignupForm() {
   const router = useRouter();
   const [name, setName] = useState("Demo Merchant");
   const [email, setEmail] = useState("demo@relay.local");
-  const [password, setPassword] = useState("demopassword");
+  const [password, setPassword] = useState("Relay-Demo#2026-kq7v");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
