@@ -33,3 +33,28 @@ jobs:
             NEXT_PUBLIC_API_URL=https://relay.mridulgiri.com
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/relay-${{ matrix.app }}:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v7
+
+      - name: Deploy to the EC2
+        run: |
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/ssh_key
+          chmod 600 ~/ssh_key
+
+          scp -o StrictHostKeyChecking=no -i ~/ssh_key compose.prod.yaml ubuntu@${{ secrets.EC2_HOST }}:~/relay/compose.prod.yaml
+
+          ssh -o StrictHostKeyChecking=no -i ~/ssh_key ubuntu@${{ secrets.EC2_HOST }} "
+            cd ~/relay &&
+            sed -i -e '/^TAG=/d' -e '\$a\\' .env &&
+            echo 'TAG=${{ github.sha }}' >> .env &&
+            docker compose -f compose.prod.yaml pull &&
+            docker compose -f compose.prod.yaml up -d &&
+            docker image prune -af
+          "
+
+          rm ~/ssh_key
