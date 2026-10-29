@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { CallView, Merchant } from "../lib/types";
 import { api } from "../lib/api";
@@ -9,6 +9,16 @@ import { ArrowIcon } from "../components/icons";
 import { CallForm } from "./call-form";
 import { CallCard } from "./call-card";
 import { CallLinkNotice } from "./call-link-notice";
+
+async function readMerchant() {
+  const res = await api.get<{ merchant: Merchant }>("/api/auth/me");
+  return res.data.merchant;
+}
+
+async function readCalls() {
+  const res = await api.get<{ calls: CallView[] }>("/api/calls");
+  return res.data.calls;
+}
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -20,26 +30,33 @@ export default function DashboardPage() {
   const [placedCallUrl, setPlacedCallUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    api
-      .get<{ merchant: Merchant }>("/api/auth/me")
-      .then((res) => setMerchant(res.data.merchant))
-      .catch(() => router.replace("/login"))
-      .finally(() => setReady(true));
+    async function loadDashboard() {
+      try {
+        const signedInMerchant = await readMerchant();
+        setMerchant(signedInMerchant);
+      } catch {
+        router.replace("/login");
+        return;
+      } finally {
+        setReady(true);
+      }
+
+      const savedCalls = await readCalls();
+      setCalls(savedCalls);
+    }
+
+    void loadDashboard();
   }, [router]);
 
-  const refresh = useCallback(async () => {
+  async function refresh() {
     setRefreshing(true);
     try {
-      const res = await api.get<{ calls: CallView[] }>("/api/calls");
-      setCalls(res.data.calls);
+      const savedCalls = await readCalls();
+      setCalls(savedCalls);
     } finally {
       setRefreshing(false);
     }
-  }, []);
-
-  useEffect(() => {
-    if (ready && merchant) void refresh();
-  }, [ready, merchant, refresh]);
+  }
 
   async function logout() {
     clearToken();
@@ -63,7 +80,11 @@ export default function DashboardPage() {
   }
 
   if (!ready) {
-    return <main className="pixel grid min-h-svh place-items-center text-[15px] text-muted-foreground">Loading…</main>;
+    return (
+      <main className="pixel grid min-h-svh place-items-center text-[15px] text-muted-foreground">
+        Loading…
+      </main>
+    );
   }
 
   const callCountText = calls.length === 1 ? "1 call" : `${calls.length} calls`;
@@ -78,7 +99,9 @@ export default function DashboardPage() {
             <span className="size-1.5 bg-primary" aria-hidden />
           </span>
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="mr-1.5 text-sm text-muted-foreground">{merchant?.name}</span>
+            <span className="mr-1.5 text-sm text-muted-foreground">
+              {merchant?.name}
+            </span>
             <button
               type="button"
               onClick={() => void refresh()}
@@ -99,8 +122,12 @@ export default function DashboardPage() {
 
         <div className="mt-12 mb-6 flex flex-wrap items-end justify-between gap-4">
           <div className="flex items-baseline gap-3.5">
-            <h1 className="pixel text-[clamp(36px,5vw,52px)] leading-none text-foreground">Calls</h1>
-            <span className="pixel text-[15px] text-muted-foreground">{callCountText}</span>
+            <h1 className="pixel text-[clamp(36px,5vw,52px)] leading-none text-foreground">
+              Calls
+            </h1>
+            <span className="pixel text-[15px] text-muted-foreground">
+              {callCountText}
+            </span>
           </div>
           <button
             type="button"

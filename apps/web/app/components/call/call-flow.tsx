@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import type { CallSession } from "../../lib/types";
+import { api } from "../../lib/api";
 import { LiveKitRoom, RoomAudioRenderer } from "@livekit/components-react";
 import "@livekit/components-styles";
 import { CallScreen, CallTitle } from "./call-screen";
@@ -17,7 +18,7 @@ export function CallFlow({ callId }: { callId: string }) {
   const [ended, setEnded] = useState(false);
 
   useEffect(() => {
-    axios
+    api
       .post<CallSession>(`/api/calls/${callId}/session`)
       .then((res) => setSession(res.data))
       .catch((err) => {

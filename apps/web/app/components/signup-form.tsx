@@ -9,10 +9,10 @@ import { errorMessage } from "../lib/errors";
 import { DemoNote } from "./auth-layout";
 import { ArrowIcon } from "./icons";
 
-export function SignupForm({ demoEmail }: { demoEmail: string }) {
+export function SignupForm() {
   const router = useRouter();
   const [name, setName] = useState("Demo Merchant");
-  const [email, setEmail] = useState(demoEmail);
+  const [email, setEmail] = useState("demo@relay.local");
   const [password, setPassword] = useState("demopassword");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);

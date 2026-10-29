@@ -3,19 +3,13 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "../lib/api";
-import { clearToken, readToken } from "../lib/session";
+import { clearToken } from "../lib/session";
 
 export function SignedOutOnly({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [showPage, setShowPage] = useState(false);
 
   useEffect(() => {
-    const token = readToken();
-    if (!token) {
-      setShowPage(true);
-      return;
-    }
-
     api
       .get("/api/auth/me")
       .then(() => router.replace("/dashboard"))

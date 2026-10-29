@@ -39,15 +39,21 @@ export function CallCard({ call }: { call: CallView }) {
     <article className="panel grid min-h-[280px] grid-rows-[auto_1fr_auto] gap-[18px] px-5 pt-5 pb-[22px]">
       <div className="flex items-start justify-between gap-3">
         <div className="grid min-w-0 gap-2">
-          <h3 className="pixel text-xl leading-[1.1] wrap-anywhere text-foreground">{call.customerName}</h3>
+          <h3 className="pixel text-xl leading-[1.1] wrap-anywhere text-foreground">
+            {call.customerName}
+          </h3>
           <div className="flex flex-wrap items-center gap-2 text-[13px] text-muted-foreground">
             <span className={`chip ${statusChip}`}>{statusText}</span>
             {outcomeText ? (
-              <span className="font-pixel text-foreground">· {outcomeText}</span>
+              <span className="font-pixel text-foreground">
+                · {outcomeText}
+              </span>
             ) : null}
           </div>
         </div>
-        <span className="mono shrink-0 text-xs text-faint">{call.orderRef}</span>
+        <span className="mono shrink-0 text-xs text-faint">
+          {call.orderRef}
+        </span>
       </div>
 
       <div className="grid max-h-[220px] content-start gap-2.5 overflow-auto rounded-lg border border-border bg-well p-3">
@@ -62,7 +68,9 @@ export function CallCard({ call }: { call: CallView }) {
                 <span className={`pixel ${speakerClass}`}>
                   {isAgent ? "Agent" : "Customer"}
                 </span>
-                <span className="text-sm leading-[1.45] text-foreground">{turn.text}</span>
+                <span className="text-sm leading-[1.45] text-foreground">
+                  {turn.text}
+                </span>
               </div>
             );
           })

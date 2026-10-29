@@ -1,0 +1,38 @@
+name: relay
+
+x-app: &app
+  restart: unless-stopped
+  env_file: .env
+
+services:
+  migrate:
+    <<: *app
+    image: mridulgiri/relay-api:${TAG}
+    restart: "no"
+    working_dir: /usr/src/app/packages/db
+    command: ["bunx", "prisma", "migrate", "deploy"]
+
+  api:
+    <<: *app
+    image: mridulgiri/relay-api:${TAG}
+    environment:
+      PORT: "3001"
+    ports:
+      - 127.0.0.1:3001:3001
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  agent:
+    <<: *app
+    image: mridulgiri/relay-agent:${TAG}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  web:
+    <<: *app
+    image: mridulgiri/relay-web:${TAG}
+    ports:
+      - 127.0.0.1:3000:3000
+    depends_on: [api]
