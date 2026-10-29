@@ -88,7 +88,8 @@ void main() {
 function hexToRgb(hex: string): [number, number, number] {
   let h = hex.replace("#", "").trim();
   if (h.length === 3) {
-    h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+    const doubledDigits = Array.from(h, (digit) => digit + digit);
+    h = doubledDigits.join("");
   }
   const n = parseInt(h, 16);
   if (h.length !== 6 || Number.isNaN(n)) return [0.1, 0.45, 0.95];
