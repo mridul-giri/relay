@@ -14,6 +14,12 @@ TypeScript. It uses LiveKit for the audio call and Postgres to store data.
 
 ---
 
+## Demo
+
+https://github.com/user-attachments/assets/66f26f28-7de0-44d2-8cd1-5ca03d56439f
+
+---
+
 ## What happens in a call
 
 1. A merchant signs in to the web console and fills in a call form: the
